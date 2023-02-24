@@ -7,12 +7,10 @@ module.exports = {
     'plugin:solid/typescript',
   ],
   plugins: [
-    '@typescript-eslint',
     'solid',
+    '@typescript-eslint',
   ],
-  ignorePatterns: [
-    '*.cjs'
-  ],
+  ignorePatterns: ['*.cjs'],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
