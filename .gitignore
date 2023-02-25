@@ -8,5 +8,6 @@ vite.config.ts.timestamp-*
 .env.*
 !.env.example
 
+.netlify
 .solid
-dist
+netlify
