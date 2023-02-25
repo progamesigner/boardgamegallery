@@ -23,6 +23,7 @@
     "vite": "^3.2"
   },
   "dependencies": {
+    "@notionhq/client": "^2.2.3",
     "@solidjs/meta": "^0.28",
     "@solidjs/router": "^0.7",
     "solid-js": "^1.6",

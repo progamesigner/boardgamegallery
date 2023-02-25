@@ -20,7 +20,12 @@ export function GameDetail(props: Props): JSX.Element {
         <h3 class="text-base text-gray-300">{props.item.originalName}</h3>
         <h2 class="text-lg font-bold text-gray-100">{props.item.name}</h2>
         <p class="text-gray-300">{props.item.description}</p>
-        <p>Type: {props.item.type}</p>
+        <p>
+          Type:
+          <Index each={props.item.types}>
+            {item => <span class="text-gray-300">{item()}</span>}
+          </Index>
+        </p>
         <p>
           Players: {props.item.minimalPlayers} ~ {props.item.maximalPlayers}
         </p>

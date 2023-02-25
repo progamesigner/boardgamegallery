@@ -5,10 +5,10 @@ export interface Game {
   description?: string
   label?: string
   image?: string
-  type?: string
-  maximalMinutes?: number
-  maximalPlayers?: number
-  minimalMinutes?: number
-  minimalPlayers?: number
+  types?: Array<string>
+  minimalPlayers: number
+  maximalPlayers: number
+  minimalMinutes: number
+  maximalMinutes: number
   tags: Array<string>
 }

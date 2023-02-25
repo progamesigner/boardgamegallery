@@ -17,7 +17,7 @@ function makeSampleGame(id: number): Game {
     description: `Game ${id + 1} description`,
     label: `Playable`,
     image: 'https://preview.tabler.io/static/photos/modern-home-office.jpg',
-    type: 'Strategy',
+    types: ['Strategy'],
     maximalMinutes: 120,
     minimalMinutes: 60,
     minimalPlayers: 2,
