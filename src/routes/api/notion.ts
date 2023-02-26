@@ -357,16 +357,21 @@ async function handle(token: string, databaseId: string): Promise<Response> {
   return json(state.items)
 }
 
-export async function GET({ params }: APIEvent): Promise<Response> {
+export async function GET({ request }: APIEvent): Promise<Response> {
+  const params = new URL(request.url).searchParams
   const token = NOTION_TOKEN
-  const databaseId = ENABLE_NOTION_QUERY ? params.db ?? NOTION_DATABASE_ID : NOTION_DATABASE_ID
+  const databaseId = ENABLE_NOTION_QUERY
+    ? params.has('db')
+      ? params.get('db')
+      : NOTION_DATABASE_ID
+    : NOTION_DATABASE_ID
 
   if (!token) {
-    return new Response('Not Found', { status: 404 })
+    return new Response(null, { status: 404 })
   }
 
   if (!databaseId) {
-    return new Response('Not Found', { status: 404 })
+    return new Response(null, { status: 404 })
   }
 
   return await handle(token, databaseId)
