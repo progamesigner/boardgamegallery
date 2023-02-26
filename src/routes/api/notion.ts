@@ -1,4 +1,5 @@
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { APIEvent } from 'solid-start'
 
 import type { Game } from '~/types'
 
@@ -26,6 +27,8 @@ interface NotionPaginationState {
 }
 
 type NotionProperty = PageObjectResponse['properties'][keyof PageObjectResponse['properties']]
+
+const { ENABLE_NOTION_QUERY, NOTION_DATABASE_ID, NOTION_TOKEN } = process.env
 
 function extractArrayProperty(property: NotionProperty): Array<string> {
   switch (property.type) {
@@ -243,10 +246,7 @@ function splitStringArray(value: string): Array<string> {
     .filter(v => v.length > 0)
 }
 
-export async function GET(): Promise<Response> {
-  const token = process.env.NOTION_TOKEN
-  const databaseId = process.env.NOTION_DATABASE_ID ?? ''
-
+async function handle(token: string, databaseId: string): Promise<Response> {
   const client = new Client({
     auth: token,
   })
@@ -355,4 +355,19 @@ export async function GET(): Promise<Response> {
   } while (state.cursor)
 
   return json(state.items)
+}
+
+export async function GET({ params }: APIEvent): Promise<Response> {
+  const token = NOTION_TOKEN
+  const databaseId = ENABLE_NOTION_QUERY ? params.db ?? NOTION_DATABASE_ID : NOTION_DATABASE_ID
+
+  if (!token) {
+    return new Response('Not Found', { status: 404 })
+  }
+
+  if (!databaseId) {
+    return new Response('Not Found', { status: 404 })
+  }
+
+  return await handle(token, databaseId)
 }
