@@ -17,7 +17,7 @@ export default function (): JSX.Element {
   const [searchParams] = useSearchParams()
 
   const [getSource, setSource] = createSignal<string>(import.meta.env.VITE_DEFAULT_SOURCE)
-  const [getLoading, setLoading] = createSignal<boolean>(false)
+  const [getLoading, setLoading] = createSignal<boolean>(true)
   const [getError, setError] = createSignal<boolean>(false)
   const [getGames, setGames] = createSignal<Array<Game>>([])
 
@@ -26,16 +26,17 @@ export default function (): JSX.Element {
   }
 
   onMount(async () => {
-    setLoading(true)
-    try {
-      const games = await fetchGames()
-      setGames(games)
-      setError(false)
-    } catch (error) {
-      console.error(error)
-      setError(true)
-    } finally {
-      setLoading(false)
+    if (getSource()) {
+      try {
+        const games = await fetchGames(getSource())
+        setGames(games)
+        setError(false)
+      } catch (error) {
+        console.error(error)
+        setError(true)
+      } finally {
+        setLoading(false)
+      }
     }
   })
 
