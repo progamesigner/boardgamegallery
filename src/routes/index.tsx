@@ -5,6 +5,7 @@ import type { Game } from '~/types'
 import { createSignal, Index, onMount, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
+import { fetchGames } from '~/apis'
 import { GameDetail } from '~/components/GameDetail'
 import { GameItem } from '~/components/GameItem'
 import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
@@ -16,14 +17,8 @@ export default function (): JSX.Element {
 
   onMount(async () => {
     try {
-      const response = await fetch('/api/notion')
-      if (response.ok) {
-        const games = await response.json()
-        setGames(games)
-        setError(false)
-      } else {
-        setError(true)
-      }
+      const games = await fetchGames()
+      setGames(games)
     } catch (error) {
       setError(true)
       console.log(error)
