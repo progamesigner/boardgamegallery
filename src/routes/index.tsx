@@ -53,9 +53,14 @@ export default function (): JSX.Element {
                   id={`modal-${item().id}`}
                   topbar={
                     <ModalClose id={`modal-${item().id}`}>
-                      <a href="#" class="pr-4 text-gray-100">
-                        BGG
-                      </a>
+                      <Show when={item().bggId}>
+                        <a
+                          href={`https://boardgamegeek.com/boardgame/${item().bggId}`}
+                          class="pr-4 text-gray-100"
+                        >
+                          BGG
+                        </a>
+                      </Show>
                     </ModalClose>
                   }
                 >

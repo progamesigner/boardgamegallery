@@ -8,17 +8,34 @@ import { json } from 'solid-start/api'
 
 enum Field {
   INCLUDE = '[BGG]: INCLUDE',
+  BGGID = '[BGG]: BGGID',
   NAME = '[BGG]: NAME',
   ORIGINAL_NAME = '[BGG]: ORIGINAL-NAME',
   DESCRIPTION = '[BGG]: DESCRIPTION',
   LABEL = '[BGG]: LABEL-TEXT',
-  IMAGE_URL = '[BGG]: IMAGE-URL',
+  IMAGE = '[BGG]: IMAGE',
   TYPES = '[BGG]: TYPES',
-  MINMAL_PLAYERS = '[BGG]: MIN-PLAYERS',
+  MINIMAL_PLAYERS = '[BGG]: MIN-PLAYERS',
   MAXIMAL_PLAYERS = '[BGG]: MAX-PLAYERS',
-  MINMAL_MINUTES = '[BGG]: MIN-MINUTES',
+  MINIMAL_MINUTES = '[BGG]: MIN-MINUTES',
   MAXIMAL_MINUTES = '[BGG]: MAX-MINUTES',
   TAGS = '[BGG]: TAGS',
+}
+
+interface NotionGamePayload {
+  [Field.INCLUDE]?: boolean
+  [Field.BGGID]?: number
+  [Field.NAME]?: string
+  [Field.ORIGINAL_NAME]?: string
+  [Field.DESCRIPTION]?: string
+  [Field.LABEL]?: string
+  [Field.IMAGE]?: string
+  [Field.TYPES]?: Array<string>
+  [Field.MINIMAL_PLAYERS]?: number
+  [Field.MAXIMAL_PLAYERS]?: number
+  [Field.MINIMAL_MINUTES]?: number
+  [Field.MAXIMAL_MINUTES]?: number
+  [Field.TAGS]?: Array<string>
 }
 
 interface NotionPaginationState {
@@ -189,6 +206,21 @@ function extractStringProperty(property: NotionProperty): string | undefined {
       return property.email ? property.email : undefined
     case 'phone_number':
       return property.phone_number ? property.phone_number : undefined
+    case 'files':
+      return property.files
+        ? property.files
+            .map(file => {
+              switch (file.type) {
+                case 'file':
+                  return file.file.url
+                case 'external':
+                  return file.external.url
+                default:
+                  return undefined
+              }
+            })
+            .at(0)
+        : undefined
     case 'formula':
       switch (property.formula.type) {
         case 'number':
@@ -239,6 +271,59 @@ function formatNotionDate(begin: string, end: string | null, timezone: string | 
   return begin
 }
 
+async function makeGameImage(
+  client: Client,
+  item: PageObjectResponse,
+  game: NotionGamePayload
+): Promise<string | null> {
+  if (game[Field.IMAGE]) {
+    return game[Field.IMAGE]
+  }
+
+  if (item.cover) {
+    switch (item.cover.type) {
+      case 'file':
+        return item.cover.file.url
+      case 'external':
+        return item.cover.external.url
+      default:
+        return null
+    }
+  }
+
+  const data = await client.blocks.children.list({
+    block_id: item.id,
+  })
+
+  return data.results.reduce((url, block) => {
+    if (!url && 'type' in block) {
+      switch (block.type) {
+        case 'file':
+          switch (block.file.type) {
+            case 'file':
+              return block.file.file.url
+            case 'external':
+              return block.file.external.url
+            default:
+              return url
+          }
+        case 'image':
+          switch (block.image.type) {
+            case 'file':
+              return block.image.file.url
+            case 'external':
+              return block.image.external.url
+            default:
+              return url
+          }
+        default:
+          return url
+      }
+    }
+    return url
+  }, null as string | null)
+}
+
 function splitStringArray(value: string): Array<string> {
   return value
     .split(/[\s,、]+/)
@@ -263,93 +348,101 @@ async function handle(token: string, databaseId: string): Promise<Response> {
       archived: false,
     })
 
-    data.results.map(item => {
-      if ('properties' in item) {
-        const game = Object.entries(item.properties).reduce((fields, [name, property]) => {
-          switch (name.toUpperCase()) {
-            case Field.INCLUDE:
-              return {
-                ...fields,
-                include: extractBooleanProperty(property),
-              }
-            case Field.NAME:
-              return {
-                ...fields,
-                name: extractStringProperty(property),
-              }
-            case Field.ORIGINAL_NAME:
-              return {
-                ...fields,
-                originalName: extractStringProperty(property),
-              }
-            case Field.DESCRIPTION:
-              return {
-                ...fields,
-                description: extractStringProperty(property),
-              }
-            case Field.LABEL:
-              return {
-                ...fields,
-                label: extractStringProperty(property),
-              }
-            case Field.IMAGE_URL:
-              return {
-                ...fields,
-                image: extractStringProperty(property),
-              }
-            case Field.TYPES:
-              return {
-                ...fields,
-                types: extractArrayProperty(property),
-              }
-            case Field.MINMAL_PLAYERS:
-              return {
-                ...fields,
-                minimalPlayers: extractNumberProperty(property),
-              }
-            case Field.MAXIMAL_PLAYERS:
-              return {
-                ...fields,
-                maximalPlayers: extractNumberProperty(property),
-              }
-            case Field.MINMAL_MINUTES:
-              return {
-                ...fields,
-                minimalMinutes: extractNumberProperty(property),
-              }
-            case Field.MAXIMAL_MINUTES:
-              return {
-                ...fields,
-                maximalMinutes: extractNumberProperty(property),
-              }
-            case Field.TAGS:
-              return {
-                ...fields,
-                tags: extractArrayProperty(property),
-              }
-            default:
-              return fields
-          }
-        }, {} as Partial<Game> & { include: boolean })
+    await Promise.all(
+      data.results.map(async item => {
+        if ('properties' in item) {
+          const game = Object.entries(item.properties).reduce((fields, [name, property]) => {
+            switch (name.toUpperCase()) {
+              case Field.INCLUDE:
+                return {
+                  ...fields,
+                  [Field.INCLUDE]: extractBooleanProperty(property),
+                }
+              case Field.BGGID:
+                return {
+                  ...fields,
+                  [Field.BGGID]: extractNumberProperty(property),
+                }
+              case Field.NAME:
+                return {
+                  ...fields,
+                  [Field.NAME]: extractStringProperty(property),
+                }
+              case Field.ORIGINAL_NAME:
+                return {
+                  ...fields,
+                  [Field.ORIGINAL_NAME]: extractStringProperty(property),
+                }
+              case Field.DESCRIPTION:
+                return {
+                  ...fields,
+                  [Field.DESCRIPTION]: extractStringProperty(property),
+                }
+              case Field.LABEL:
+                return {
+                  ...fields,
+                  [Field.LABEL]: extractStringProperty(property),
+                }
+              case Field.IMAGE:
+                return {
+                  ...fields,
+                  [Field.IMAGE]: extractStringProperty(property),
+                }
+              case Field.TYPES:
+                return {
+                  ...fields,
+                  [Field.TYPES]: extractArrayProperty(property),
+                }
+              case Field.MINIMAL_PLAYERS:
+                return {
+                  ...fields,
+                  [Field.MINIMAL_PLAYERS]: extractNumberProperty(property),
+                }
+              case Field.MAXIMAL_PLAYERS:
+                return {
+                  ...fields,
+                  [Field.MAXIMAL_PLAYERS]: extractNumberProperty(property),
+                }
+              case Field.MINIMAL_MINUTES:
+                return {
+                  ...fields,
+                  [Field.MINIMAL_MINUTES]: extractNumberProperty(property),
+                }
+              case Field.MAXIMAL_MINUTES:
+                return {
+                  ...fields,
+                  [Field.MAXIMAL_MINUTES]: extractNumberProperty(property),
+                }
+              case Field.TAGS:
+                return {
+                  ...fields,
+                  [Field.TAGS]: extractArrayProperty(property),
+                }
+              default:
+                return fields
+            }
+          }, {} as NotionGamePayload)
 
-        if (game && game.name && game.include) {
-          state.items.push({
-            id: item.id,
-            name: game.name,
-            originalName: game.originalName ?? null,
-            description: game.description ?? null,
-            label: game.label ?? null,
-            image: game.image ?? null,
-            types: game.types ?? [],
-            minimalPlayers: game.minimalPlayers ?? 0,
-            maximalPlayers: game.maximalPlayers ?? 0,
-            minimalMinutes: game.minimalMinutes ?? 0,
-            maximalMinutes: game.maximalMinutes ?? 0,
-            tags: game.tags ?? [],
-          })
+          if (game && game[Field.INCLUDE] && game[Field.NAME]) {
+            state.items.push({
+              id: item.id,
+              name: game[Field.NAME],
+              bggId: game[Field.BGGID] ?? null,
+              originalName: game[Field.ORIGINAL_NAME] ?? null,
+              description: game[Field.DESCRIPTION] ?? null,
+              label: game[Field.LABEL] ?? null,
+              image: await makeGameImage(client, item, game),
+              types: game[Field.TYPES] ?? [],
+              minimalPlayers: game[Field.MINIMAL_PLAYERS] ?? 0,
+              maximalPlayers: game[Field.MAXIMAL_PLAYERS] ?? 0,
+              minimalMinutes: game[Field.MINIMAL_MINUTES] ?? 0,
+              maximalMinutes: game[Field.MAXIMAL_MINUTES] ?? 0,
+              tags: game[Field.TAGS] ?? [],
+            })
+          }
         }
-      }
-    })
+      })
+    )
 
     state.cursor = data.next_cursor ?? undefined
   } while (state.cursor)

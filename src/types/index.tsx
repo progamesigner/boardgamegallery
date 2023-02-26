@@ -1,5 +1,6 @@
 export interface Game {
   id: string
+  bggId: number | null
   name: string
   originalName: string | null
   description: string | null
