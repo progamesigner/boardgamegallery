@@ -4,7 +4,7 @@ import type { Game } from '~/types'
 
 import { Index } from 'solid-js'
 
-export interface Props {
+interface Props {
   item: Game
 }
 
