@@ -4,7 +4,7 @@ import type { APIEvent } from 'solid-start'
 import type { Game } from '~/types'
 
 import { Client } from '@notionhq/client'
-import { json } from 'solid-start/api'
+import { json } from 'solid-start'
 
 enum Field {
   INCLUDE = '[BGG]: INCLUDE',
@@ -38,14 +38,16 @@ interface NotionGamePayload {
   [Field.TAGS]?: Array<string>
 }
 
-interface NotionPaginationState {
-  cursor?: string
-  items: Array<Game>
-}
-
 type NotionProperty = PageObjectResponse['properties'][keyof PageObjectResponse['properties']]
 
-const { ENABLE_NOTION_QUERY, NOTION_DATABASE_ID, NOTION_TOKEN } = process.env
+export interface APIResponse {
+  data: Array<Game>
+  cursor: string | null
+}
+
+const client = new Client({
+  auth: process.env.NOTION_TOKEN,
+})
 
 function extractArrayProperty(property: NotionProperty): Array<string> {
   switch (property.type) {
@@ -271,11 +273,7 @@ function formatNotionDate(begin: string, end: string | null, timezone: string | 
   return begin
 }
 
-async function makeGameImage(
-  client: Client,
-  item: PageObjectResponse,
-  game: NotionGamePayload
-): Promise<string | null> {
+function makeGameImage(item: PageObjectResponse, game: NotionGamePayload): string | null {
   if (game[Field.IMAGE]) {
     return game[Field.IMAGE]
   }
@@ -291,37 +289,7 @@ async function makeGameImage(
     }
   }
 
-  const data = await client.blocks.children.list({
-    block_id: item.id,
-  })
-
-  return data.results.reduce((url, block) => {
-    if (!url && 'type' in block) {
-      switch (block.type) {
-        case 'file':
-          switch (block.file.type) {
-            case 'file':
-              return block.file.file.url
-            case 'external':
-              return block.file.external.url
-            default:
-              return url
-          }
-        case 'image':
-          switch (block.image.type) {
-            case 'file':
-              return block.image.file.url
-            case 'external':
-              return block.image.external.url
-            default:
-              return url
-          }
-        default:
-          return url
-      }
-    }
-    return url
-  }, null as string | null)
+  return null
 }
 
 function splitStringArray(value: string): Array<string> {
@@ -331,141 +299,129 @@ function splitStringArray(value: string): Array<string> {
     .filter(v => v.length > 0)
 }
 
-async function handle(token: string, databaseId: string): Promise<Response> {
-  const client = new Client({
-    auth: token,
+async function handle(databaseId: string, cursor?: string): Promise<APIResponse> {
+  const games = [] as Array<Game>
+
+  const items = await client.databases.query({
+    database_id: databaseId,
+    start_cursor: cursor,
+    archived: false,
   })
 
-  const state = {
-    cursor: undefined,
-    items: [],
-  } as NotionPaginationState
-
-  do {
-    const data = await client.databases.query({
-      database_id: databaseId,
-      start_cursor: state.cursor,
-      archived: false,
-    })
-
-    await Promise.all(
-      data.results.map(async item => {
-        if ('properties' in item) {
-          const game = Object.entries(item.properties).reduce((fields, [name, property]) => {
-            switch (name.toUpperCase()) {
-              case Field.INCLUDE:
-                return {
-                  ...fields,
-                  [Field.INCLUDE]: extractBooleanProperty(property),
-                }
-              case Field.BGGID:
-                return {
-                  ...fields,
-                  [Field.BGGID]: extractNumberProperty(property),
-                }
-              case Field.NAME:
-                return {
-                  ...fields,
-                  [Field.NAME]: extractStringProperty(property),
-                }
-              case Field.ORIGINAL_NAME:
-                return {
-                  ...fields,
-                  [Field.ORIGINAL_NAME]: extractStringProperty(property),
-                }
-              case Field.DESCRIPTION:
-                return {
-                  ...fields,
-                  [Field.DESCRIPTION]: extractStringProperty(property),
-                }
-              case Field.LABEL:
-                return {
-                  ...fields,
-                  [Field.LABEL]: extractStringProperty(property),
-                }
-              case Field.IMAGE:
-                return {
-                  ...fields,
-                  [Field.IMAGE]: extractStringProperty(property),
-                }
-              case Field.TYPES:
-                return {
-                  ...fields,
-                  [Field.TYPES]: extractArrayProperty(property),
-                }
-              case Field.MINIMAL_PLAYERS:
-                return {
-                  ...fields,
-                  [Field.MINIMAL_PLAYERS]: extractNumberProperty(property),
-                }
-              case Field.MAXIMAL_PLAYERS:
-                return {
-                  ...fields,
-                  [Field.MAXIMAL_PLAYERS]: extractNumberProperty(property),
-                }
-              case Field.MINIMAL_MINUTES:
-                return {
-                  ...fields,
-                  [Field.MINIMAL_MINUTES]: extractNumberProperty(property),
-                }
-              case Field.MAXIMAL_MINUTES:
-                return {
-                  ...fields,
-                  [Field.MAXIMAL_MINUTES]: extractNumberProperty(property),
-                }
-              case Field.TAGS:
-                return {
-                  ...fields,
-                  [Field.TAGS]: extractArrayProperty(property),
-                }
-              default:
-                return fields
+  items.results.map(item => {
+    if ('properties' in item) {
+      const game = Object.entries(item.properties).reduce((fields, [name, property]) => {
+        switch (name.toUpperCase()) {
+          case Field.INCLUDE:
+            return {
+              ...fields,
+              [Field.INCLUDE]: extractBooleanProperty(property),
             }
-          }, {} as NotionGamePayload)
-
-          if (game && game[Field.INCLUDE] && game[Field.NAME]) {
-            state.items.push({
-              id: item.id,
-              name: game[Field.NAME],
-              bggId: game[Field.BGGID] ?? null,
-              originalName: game[Field.ORIGINAL_NAME] ?? null,
-              description: game[Field.DESCRIPTION] ?? null,
-              label: game[Field.LABEL] ?? null,
-              image: await makeGameImage(client, item, game),
-              types: game[Field.TYPES] ?? [],
-              minimalPlayers: game[Field.MINIMAL_PLAYERS] ?? 0,
-              maximalPlayers: game[Field.MAXIMAL_PLAYERS] ?? 0,
-              minimalMinutes: game[Field.MINIMAL_MINUTES] ?? 0,
-              maximalMinutes: game[Field.MAXIMAL_MINUTES] ?? 0,
-              tags: game[Field.TAGS] ?? [],
-            })
-          }
+          case Field.BGGID:
+            return {
+              ...fields,
+              [Field.BGGID]: extractNumberProperty(property),
+            }
+          case Field.NAME:
+            return {
+              ...fields,
+              [Field.NAME]: extractStringProperty(property),
+            }
+          case Field.ORIGINAL_NAME:
+            return {
+              ...fields,
+              [Field.ORIGINAL_NAME]: extractStringProperty(property),
+            }
+          case Field.DESCRIPTION:
+            return {
+              ...fields,
+              [Field.DESCRIPTION]: extractStringProperty(property),
+            }
+          case Field.LABEL:
+            return {
+              ...fields,
+              [Field.LABEL]: extractStringProperty(property),
+            }
+          case Field.IMAGE:
+            return {
+              ...fields,
+              [Field.IMAGE]: extractStringProperty(property),
+            }
+          case Field.TYPES:
+            return {
+              ...fields,
+              [Field.TYPES]: extractArrayProperty(property),
+            }
+          case Field.MINIMAL_PLAYERS:
+            return {
+              ...fields,
+              [Field.MINIMAL_PLAYERS]: extractNumberProperty(property),
+            }
+          case Field.MAXIMAL_PLAYERS:
+            return {
+              ...fields,
+              [Field.MAXIMAL_PLAYERS]: extractNumberProperty(property),
+            }
+          case Field.MINIMAL_MINUTES:
+            return {
+              ...fields,
+              [Field.MINIMAL_MINUTES]: extractNumberProperty(property),
+            }
+          case Field.MAXIMAL_MINUTES:
+            return {
+              ...fields,
+              [Field.MAXIMAL_MINUTES]: extractNumberProperty(property),
+            }
+          case Field.TAGS:
+            return {
+              ...fields,
+              [Field.TAGS]: extractArrayProperty(property),
+            }
+          default:
+            return fields
         }
-      })
-    )
+      }, {} as NotionGamePayload)
 
-    state.cursor = data.next_cursor ?? undefined
-  } while (state.cursor)
+      if (game && game[Field.INCLUDE] && game[Field.NAME]) {
+        games.push({
+          id: item.id,
+          name: game[Field.NAME],
+          bggId: game[Field.BGGID] ?? null,
+          originalName: game[Field.ORIGINAL_NAME] ?? null,
+          description: game[Field.DESCRIPTION] ?? null,
+          label: game[Field.LABEL] ?? null,
+          image: makeGameImage(item, game),
+          types: game[Field.TYPES] ?? [],
+          minimalPlayers: game[Field.MINIMAL_PLAYERS] ?? 0,
+          maximalPlayers: game[Field.MAXIMAL_PLAYERS] ?? 0,
+          minimalMinutes: game[Field.MINIMAL_MINUTES] ?? 0,
+          maximalMinutes: game[Field.MAXIMAL_MINUTES] ?? 0,
+          tags: game[Field.TAGS] ?? [],
+        })
+      }
+    }
+  })
 
-  return json(state.items)
+  return {
+    cursor: items.next_cursor,
+    data: games,
+  }
 }
 
-export async function GET({ request }: APIEvent): Promise<Response> {
-  const params = new URL(request.url).searchParams
-  const token = NOTION_TOKEN
-  const databaseId = ENABLE_NOTION_QUERY
-    ? params.has('db')
-      ? params.get('db')
-      : NOTION_DATABASE_ID
-    : NOTION_DATABASE_ID
+export async function GET({ params, request }: APIEvent): Promise<Response> {
+  const url = new URL(request.url)
 
-  if (!token) {
+  if (!process.env.ENABLE_NOTION_QUERY) {
     return new Response(null, { status: 404 })
   }
 
-  if (!databaseId) {
+  if (!process.env.NOTION_TOKEN) {
     return new Response(null, { status: 404 })
   }
 
-  return await handle(token, databaseId)
+  try {
+    return json(await handle(params.id, url.searchParams.get('cursor') ?? undefined))
+  } catch (error) {
+    return json(error)
+  }
 }

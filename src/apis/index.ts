@@ -1,9 +1,13 @@
 import type { Game } from '~/types'
 
-export async function fetchGames(): Promise<Array<Game>> {
-  const response = await fetch('/api/notion')
-  if (!response.ok) {
-    throw new Error('Failed to fetch games')
+import { default as notion } from './notion'
+
+export async function fetchGames(source: string): Promise<Array<Game>> {
+  const [engine, params] = source.split(':', 2)
+  switch (engine.toLowerCase()) {
+    case 'notion':
+      return await notion(params)
+    default:
+      throw new Error('Unsupported source engine')
   }
-  return await response.json()
 }
