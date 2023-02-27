@@ -16,13 +16,16 @@ import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
 export default function (): JSX.Element {
   const [searchParams] = useSearchParams()
 
-  const [getSource, setSource] = createSignal<string>(import.meta.env.VITE_DEFAULT_SOURCE)
-  const [getLoading, setLoading] = createSignal<boolean>(true)
   const [getError, setError] = createSignal<boolean>(false)
   const [getGames, setGames] = createSignal<Array<Game>>([])
+  const [getLoading, setLoading] = createSignal<boolean>(true)
+  const [getSource, setSource] = createSignal<string>(import.meta.env.VITE_DEFAULT_STORE)
 
-  if (import.meta.env.VITE_ENABLE_SOURCE_QUERY && searchParams.s) {
-    setSource(searchParams.s)
+  if (
+    import.meta.env.VITE_ENABLE_SOURCE_QUERY &&
+    (searchParams.store || searchParams.source || searchParams.s)
+  ) {
+    setSource(searchParams.store ?? searchParams.source ?? searchParams.s)
   }
 
   onMount(async () => {
