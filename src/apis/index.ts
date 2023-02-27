@@ -1,13 +1,23 @@
 import type { Game } from '~/types'
 
+import { default as googlesheet } from './googlesheet'
 import { default as notion } from './notion'
+
+const enum Store {
+  GOOGLE_SHEET = 'googlesheet',
+  NOTION = 'notion',
+}
 
 export async function fetchGames(source: string): Promise<Array<Game>> {
   const params = source.split(':')
-  const store = params.shift()
+  const store = params.shift() as Store
   if (store) {
     switch (store.toLowerCase()) {
-      case 'notion': {
+      case Store.GOOGLE_SHEET: {
+        const [sheetId] = params
+        return await googlesheet(sheetId)
+      }
+      case Store.NOTION: {
         const [databaseId] = params
         return await notion(databaseId)
       }

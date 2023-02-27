@@ -14,7 +14,7 @@ async function handle(blockId: string): Promise<APIResponse> {
     block_id: blockId,
   })
 
-  return data.results.reduce((url, block) => {
+  return data.results.reduce<string | null>((url, block) => {
     if (!url && 'type' in block) {
       switch (block.type) {
         case 'file':
@@ -40,7 +40,7 @@ async function handle(blockId: string): Promise<APIResponse> {
       }
     }
     return url
-  }, null as string | null)
+  }, null)
 }
 
 export async function GET({ params }: APIEvent): Promise<Response> {

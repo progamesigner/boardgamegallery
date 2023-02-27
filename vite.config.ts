@@ -1,5 +1,3 @@
-import type { UserConfigExport } from 'vite'
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { default as adapter } from 'solid-start-netlify'
@@ -15,4 +13,4 @@ export default defineConfig({
       ssr: true,
     }),
   ],
-}) as UserConfigExport
+})

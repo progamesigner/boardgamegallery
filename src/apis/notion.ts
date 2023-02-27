@@ -2,6 +2,11 @@ import type { APIResponse as ImageResponse } from '~/routes/notion/v1/blocks/[id
 import type { APIResponse as QueryResponse } from '~/routes/notion/v1/databases/[id]/query/games'
 import type { Game } from '~/types'
 
+interface State {
+  cursor: string | undefined
+  items: Array<Game>
+}
+
 async function getContentImge(blockId: string): Promise<ImageResponse> {
   const response = await fetch(`/notion/v1/blocks/${blockId}/children/image`)
   if (!response.ok) {
@@ -18,12 +23,9 @@ function makeURL(databaseId: string, cursor?: string): string {
 }
 
 export default async function (databaseId: string): Promise<Array<Game>> {
-  const state = {
+  const state: State = {
     cursor: undefined,
     items: [],
-  } as {
-    cursor: string | undefined
-    items: Array<Game>
   }
 
   do {
