@@ -2,6 +2,8 @@ import type { APIResponse as ImageResponse } from '~/routes/notion/v1/blocks/[id
 import type { APIResponse as QueryResponse } from '~/routes/notion/v1/databases/[id]/query/games'
 import type { Game } from '~/types'
 
+import { getGameImages } from './boardgamegeek'
+
 interface State {
   cursor: string | undefined
   items: Array<Game>
@@ -51,5 +53,5 @@ export default async function (databaseId: string): Promise<Array<Game>> {
     state.cursor = query.cursor ?? undefined
   } while (state.cursor)
 
-  return state.items
+  return await getGameImages(state.items)
 }

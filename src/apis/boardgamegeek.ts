@@ -1,3 +1,5 @@
+import type { Game } from '~/types'
+
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
 const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`
@@ -33,7 +35,7 @@ function loadFromCache(ids: Array<string>): Record<string, string> {
   return {}
 }
 
-export async function getImageURLs(ids: Array<string>): Promise<Record<string, string | null>> {
+async function getImageURLs(ids: Array<string>): Promise<Record<string, string | null>> {
   const parser = new DOMParser()
   const serializer = new XMLSerializer()
 
@@ -78,4 +80,27 @@ export async function getImageURLs(ids: Array<string>): Promise<Record<string, s
     },
     {}
   )
+}
+
+export async function getGameImages(items: Array<Game>): Promise<Array<Game>> {
+  const missedImageIds = items
+    .filter(item => !item.image)
+    .map(item => (item.bggId ? item.bggId.toString() : ''))
+    .filter(bggId => bggId.length > 0)
+
+  if (missedImageIds.length > 0) {
+    const imageURLs = await getImageURLs(missedImageIds)
+
+    return items.map(item => {
+      if (!item.image) {
+        return {
+          ...item,
+          image: item.bggId ? imageURLs[item.bggId] : null,
+        }
+      }
+      return item
+    })
+  }
+
+  return items
 }

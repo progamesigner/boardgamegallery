@@ -2,7 +2,7 @@ import type { Game } from '~/types'
 
 import { parse } from 'papaparse'
 
-import { getImageURLs } from './boardgamegeek'
+import { getGameImages } from './boardgamegeek'
 
 const enum Field {
   ID = 'ID',
@@ -150,19 +150,5 @@ export default async function (sheetId: string): Promise<Array<Game>> {
     }
   })
 
-  const missedImageIds = items
-    .filter(item => !item.image)
-    .map(item => (item.bggId ? item.bggId.toString() : ''))
-    .filter(bggId => bggId.length > 0)
-  const imageURLs = await getImageURLs(missedImageIds)
-
-  return items.map(item => {
-    if (!item.image) {
-      return {
-        ...item,
-        image: item.bggId ? imageURLs[item.bggId] : null,
-      }
-    }
-    return item
-  })
+  return await getGameImages(items)
 }
