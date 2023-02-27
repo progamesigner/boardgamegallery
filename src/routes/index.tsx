@@ -9,6 +9,7 @@ import { useSearchParams } from 'solid-start'
 import { fetchGames } from '~/apis'
 import { ErrorMessage } from '~/components/ErrorMessage'
 import { GameDetail } from '~/components/GameDetail'
+import { ImageCacheProvider } from '~/components/GameImage'
 import { GameItem } from '~/components/GameItem'
 import { Loading } from '~/components/Loading'
 import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
@@ -56,34 +57,36 @@ export default function (): JSX.Element {
           <ErrorMessage>Error!</ErrorMessage>
         </Match>
         <Match when={!getLoading() && !getError()}>
-          <Index each={getGames()} fallback={<ErrorMessage>No Data ...</ErrorMessage>}>
-            {item => (
-              <>
-                <ModalTrigger id={`modal-${item().id}`}>
-                  <GameItem item={item()} />
-                </ModalTrigger>
-                <Portal>
-                  <Modal
-                    id={`modal-${item().id}`}
-                    topbar={
-                      <ModalClose id={`modal-${item().id}`}>
-                        <Show when={item().bggId}>
-                          <a
-                            href={`https://boardgamegeek.com/boardgame/${item().bggId}`}
-                            class="pr-4 text-gray-100"
-                          >
-                            BGG
-                          </a>
-                        </Show>
-                      </ModalClose>
-                    }
-                  >
-                    <GameDetail item={item()} />
-                  </Modal>
-                </Portal>
-              </>
-            )}
-          </Index>
+          <ImageCacheProvider>
+            <Index each={getGames()} fallback={<ErrorMessage>No Data ...</ErrorMessage>}>
+              {item => (
+                <>
+                  <ModalTrigger id={`modal-${item().id}`}>
+                    <GameItem item={item()} />
+                  </ModalTrigger>
+                  <Portal>
+                    <Modal
+                      id={`modal-${item().id}`}
+                      topbar={
+                        <ModalClose id={`modal-${item().id}`}>
+                          <Show when={item().bggId}>
+                            <a
+                              href={`https://boardgamegeek.com/boardgame/${item().bggId}`}
+                              class="pr-4 text-gray-100"
+                            >
+                              BGG
+                            </a>
+                          </Show>
+                        </ModalClose>
+                      }
+                    >
+                      <GameDetail item={item()} />
+                    </Modal>
+                  </Portal>
+                </>
+              )}
+            </Index>
+          </ImageCacheProvider>
         </Match>
       </Switch>
     </div>

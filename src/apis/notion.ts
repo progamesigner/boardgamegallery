@@ -56,5 +56,5 @@ export default async function (databaseId: string): Promise<Array<Game>> {
     state.cursor = query.cursor ?? undefined
   } while (state.cursor)
 
-  return await getGameImages(state.items)
+  return getGameImages(state.items)
 }

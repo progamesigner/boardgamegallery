@@ -150,5 +150,5 @@ export default async function (sheetId: string): Promise<Array<Game>> {
     }
   })
 
-  return await getGameImages(items)
+  return getGameImages(items)
 }
