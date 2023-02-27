@@ -1,9 +1,9 @@
-import type { APIResponse as ImageResponse } from '~/routes/notion/[id]/get-page-image'
-import type { APIResponse as QueryResponse } from '~/routes/notion/[id]/query-database'
+import type { APIResponse as ImageResponse } from '~/routes/notion/v1/blocks/[id]/children/image'
+import type { APIResponse as QueryResponse } from '~/routes/notion/v1/databases/[id]/query/games'
 import type { Game } from '~/types'
 
 async function getContentImge(blockId: string): Promise<ImageResponse> {
-  const response = await fetch(`/notion/${blockId}/get-page-image`)
+  const response = await fetch(`/notion/v1/blocks/${blockId}/children/image`)
   if (!response.ok) {
     throw new Error('Failed to fetch game cover')
   }
@@ -12,9 +12,9 @@ async function getContentImge(blockId: string): Promise<ImageResponse> {
 
 function makeURL(databaseId: string, cursor?: string): string {
   if (cursor) {
-    return `/notion/${databaseId}/query-database?cursor=${cursor}`
+    return `/notion/v1/databases/${databaseId}/query/games?cursor=${cursor}`
   }
-  return `/notion/${databaseId}/query-database`
+  return `/notion/v1/databases/${databaseId}/query/games`
 }
 
 export default async function (databaseId: string): Promise<Array<Game>> {
