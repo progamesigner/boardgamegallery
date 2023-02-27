@@ -2,6 +2,8 @@ import type { Game } from '~/types'
 
 import { parse } from 'papaparse'
 
+import { getImageURLs } from './boardgamegeek'
+
 const enum Field {
   ID = 'ID',
   BGGID = 'BGGID',
@@ -118,7 +120,7 @@ export default async function (sheetId: string): Promise<Array<Game>> {
     },
   })
 
-  return csv.data.map<Game>((item, row) => {
+  const items = csv.data.map<Game>((item, row) => {
     const [minimalPlayers, maximalPlayers] = parseRangeArray(
       item[Field.PLAYER],
       item[Field.MINIMAL_PLAYERS],
@@ -146,5 +148,21 @@ export default async function (sheetId: string): Promise<Array<Game>> {
       maximalMinutes: maximalMinutes,
       tags: [...(item[Field.TAGS] ?? []), ...(item[Field.TAG] ?? [])],
     }
+  })
+
+  const missedImageIds = items
+    .filter(item => !item.image)
+    .map(item => (item.bggId ? item.bggId.toString() : ''))
+    .filter(bggId => bggId.length > 0)
+  const imageURLs = await getImageURLs(missedImageIds)
+
+  return items.map(item => {
+    if (!item.image) {
+      return {
+        ...item,
+        image: item.bggId ? imageURLs[item.bggId] : null,
+      }
+    }
+    return item
   })
 }

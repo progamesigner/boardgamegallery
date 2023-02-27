@@ -1,6 +1,6 @@
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
-const makeCacheKey = (id: string) => `BGG:THING:2302V2:${id}`
+const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`
 
 function makeURL(ids: string): string {
   return `https://boardgamegeek.com/xmlapi2/thing?id=${ids}`
