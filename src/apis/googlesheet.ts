@@ -118,7 +118,6 @@ export default async function (sheetId: string): Promise<Array<Game>> {
     },
   })
 
-  console.log(csv.data)
   return csv.data.map<Game>((item, row) => {
     const [minimalPlayers, maximalPlayers] = parseRangeArray(
       item[Field.PLAYER],
