@@ -4,6 +4,8 @@ import type { Game } from '~/types'
 
 import { Index } from 'solid-js'
 
+import { GameImage } from '~/components/GameImage'
+
 interface Props {
   item: Game
 }
@@ -13,7 +15,7 @@ export function GameDetail(props: Props): JSX.Element {
     <div class="flex w-full flex-col pb-4 text-gray-100 sm:flex-row">
       <div class="relative basis-64">
         <figure class="pb-[80%] sm:pb-[120%]">
-          <img class="absolute h-full w-full rounded object-cover" src={props.item.image ?? ''} />
+          <GameImage item={props.item} />
         </figure>
       </div>
       <div class="mx-4">

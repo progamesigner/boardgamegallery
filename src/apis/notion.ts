@@ -37,17 +37,20 @@ export default async function (databaseId: string): Promise<Array<Game>> {
     }
 
     const query: QueryResponse = await response.json()
-    const items = await Promise.all(
-      query.data.map(async item => {
-        if (!item.image) {
-          return {
-            ...item,
-            image: await getContentImge(item.id),
+    const items = query.data.map(item => {
+      return {
+        ...item,
+        imageLoader: async () => {
+          if (item.imageLoader) {
+            const previous = await Promise.resolve(item.imageLoader())
+            if (previous) {
+              return previous
+            }
           }
-        }
-        return item
-      })
-    )
+          return await getContentImge(item.id)
+        },
+      }
+    })
 
     state.items.push(...items)
     state.cursor = query.cursor ?? undefined

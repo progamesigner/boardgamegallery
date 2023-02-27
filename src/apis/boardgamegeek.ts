@@ -89,13 +89,26 @@ export async function getGameImages(items: Array<Game>): Promise<Array<Game>> {
     .filter(bggId => bggId.length > 0)
 
   if (missedImageIds.length > 0) {
-    const imageURLs = await getImageURLs(missedImageIds)
-
     return items.map(item => {
       if (!item.image) {
         return {
           ...item,
-          image: item.bggId ? imageURLs[item.bggId] : null,
+          imageLoader: async () => {
+            if (item.imageLoader) {
+              const previous = await Promise.resolve(item.imageLoader())
+              if (previous) {
+                return previous
+              }
+            }
+
+            if (item.bggId) {
+              const id = item.bggId.toString()
+              const image = await getImageURLs([id])
+              return image[id]
+            }
+
+            return null
+          },
         }
       }
       return item

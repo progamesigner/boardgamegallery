@@ -12,4 +12,6 @@ export interface Game {
   minimalMinutes: number
   maximalMinutes: number
   tags: Array<string>
+
+  imageLoader?: () => Promise<string | null> | string | null
 }
