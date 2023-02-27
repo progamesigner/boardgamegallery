@@ -10,20 +10,21 @@ const enum Store {
 
 export async function fetchGames(source: string): Promise<Array<Game>> {
   const params = source.split(':')
-  const store = params.shift() as Store
-  if (store) {
-    switch (store.toLowerCase()) {
-      case Store.GOOGLE_SHEET: {
-        const [sheetId] = params
-        return await googlesheet(sheetId)
-      }
-      case Store.NOTION: {
-        const [databaseId] = params
-        return await notion(databaseId)
-      }
-      default:
-        throw new Error('Unsupported data store')
-    }
+  const store = params.shift() as Store | undefined
+  if (!store) {
+    throw new Error('No data store specified')
   }
-  throw new Error('No data store specified')
+
+  switch (store.toLowerCase()) {
+    case Store.GOOGLE_SHEET: {
+      const [sheetId] = params
+      return await googlesheet(sheetId)
+    }
+    case Store.NOTION: {
+      const [databaseId] = params
+      return await notion(databaseId)
+    }
+    default:
+      throw new Error('Unsupported data store')
+  }
 }
