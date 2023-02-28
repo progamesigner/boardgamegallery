@@ -1,4 +1,4 @@
-import type { Game } from '~/types'
+import type { GameObject } from '~/types'
 
 import { parse } from 'papaparse'
 
@@ -81,7 +81,7 @@ function splitStringArray(value: string): Array<string> {
     .filter(v => v.length > 0)
 }
 
-export default async function (sheetId: string): Promise<Array<Game>> {
+export default async function (sheetId: string): Promise<Array<GameObject>> {
   const response = await fetch(makeURL(sheetId))
   if (!response.ok) {
     throw new Error('Failed to fetch games')
@@ -120,7 +120,7 @@ export default async function (sheetId: string): Promise<Array<Game>> {
     },
   })
 
-  const items = csv.data.map<Game>((item, row) => {
+  const items = csv.data.map<GameObject>((item, row) => {
     const [minimalPlayers, maximalPlayers] = parseRangeArray(
       item[Field.PLAYER],
       item[Field.MINIMAL_PLAYERS],

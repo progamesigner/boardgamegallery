@@ -1,4 +1,4 @@
-import type { Game } from '~/types'
+import type { GameObject } from '~/types'
 
 import { default as fetchGoogleSheetStore } from './googlesheet'
 import { default as fetchNotionStore } from './notion'
@@ -8,7 +8,7 @@ const enum Store {
   NOTION = 'notion',
 }
 
-export async function fetchGames(source: string): Promise<Array<Game>> {
+export async function fetchGames(source: string): Promise<Array<GameObject>> {
   const params = source.split(':')
   const store = params.shift() as Store | undefined
   if (!store) {

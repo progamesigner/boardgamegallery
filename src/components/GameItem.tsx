@@ -1,13 +1,13 @@
 import type { JSX } from 'solid-js'
 
-import type { Game } from '~/types'
+import type { GameObject } from '~/types'
 
 import { Show } from 'solid-js'
 
 import { GameImage } from '~/components/GameImage'
 
 interface Props {
-  item: Game
+  item: GameObject
 }
 
 export function GameItem(props: Props): JSX.Element {

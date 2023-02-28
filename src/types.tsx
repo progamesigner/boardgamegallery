@@ -1,4 +1,4 @@
-export interface Game {
+export interface GameData {
   id: string
   bggId: number | null
   name: string
@@ -12,6 +12,8 @@ export interface Game {
   minimalMinutes: number
   maximalMinutes: number
   tags: Array<string>
+}
 
+export interface GameObject extends GameData {
   imageLoader?: () => Promise<string | null> | string | null
 }

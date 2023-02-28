@@ -1,6 +1,6 @@
 import type { JSX } from 'solid-js'
 
-import type { Game } from '~/types'
+import type { GameObject } from '~/types'
 
 import { createSignal, Index, Match, onMount, Show, Switch } from 'solid-js'
 import { Portal } from 'solid-js/web'
@@ -18,7 +18,7 @@ export default function (): JSX.Element {
   const [searchParams] = useSearchParams()
 
   const [getError, setError] = createSignal<boolean>(false)
-  const [getGames, setGames] = createSignal<Array<Game>>([])
+  const [getGames, setGames] = createSignal<Array<GameObject>>([])
   const [getLoading, setLoading] = createSignal<boolean>(true)
   const [getSource, setSource] = createSignal<string>(import.meta.env.VITE_DEFAULT_STORE)
 

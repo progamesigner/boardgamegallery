@@ -1,4 +1,4 @@
-import type { Game } from '~/types'
+import type { GameObject } from '~/types'
 
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
@@ -93,7 +93,7 @@ async function getImageURL(
   return preloadedImageURLS[id] ?? null
 }
 
-export function getGameImages(items: Array<Game>): Array<Game> {
+export function getGameImages(items: Array<GameObject>): Array<GameObject> {
   const preloadedImageURLs: Record<string, string | null> = {}
 
   const missedImageIds = items

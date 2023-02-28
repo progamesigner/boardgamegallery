@@ -1,7 +1,7 @@
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { APIEvent } from 'solid-start'
 
-import type { Game } from '~/types'
+import type { GameData, GameObject } from '~/types'
 
 import { Client } from '@notionhq/client'
 import { json } from 'solid-start'
@@ -41,7 +41,7 @@ interface NotionGamePayload {
 type NotionProperty = PageObjectResponse['properties'][keyof PageObjectResponse['properties']]
 
 export interface APIResponse {
-  data: Array<Game>
+  data: Array<GameData>
   cursor: string | null
 }
 
@@ -300,7 +300,7 @@ function splitStringArray(value: string): Array<string> {
 }
 
 async function handle(databaseId: string, cursor?: string): Promise<APIResponse> {
-  const games: Array<Game> = []
+  const games: Array<GameObject> = []
 
   const items = await client.databases.query({
     database_id: databaseId,

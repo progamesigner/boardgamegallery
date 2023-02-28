@@ -1,12 +1,12 @@
 import type { JSX, ParentProps } from 'solid-js'
 
-import type { Game } from '~/types'
+import type { GameObject } from '~/types'
 
 import { createContext, createResource, Show, useContext } from 'solid-js'
 import { createStore } from 'solid-js/store'
 
 interface Props {
-  item: Game
+  item: GameObject
 }
 
 interface DeferredImageURL {
@@ -22,7 +22,7 @@ const ImageContext = createContext<{
   set: () => undefined,
 })
 
-const fetchImageURL = async (item: Game): Promise<string | undefined> => {
+const fetchImageURL = async (item: GameObject): Promise<string | undefined> => {
   const { get, set } = useContext(ImageContext)
 
   const image = get(item.id)
