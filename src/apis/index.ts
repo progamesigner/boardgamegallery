@@ -1,10 +1,12 @@
 import type { GameObject } from '~/types'
 
 import { default as fetchGoogleSheetStore } from './googlesheet'
+import { default as fetchJSONStore } from './json'
 import { default as fetchNotionStore } from './notion'
 
 const enum Store {
   GOOGLE_SHEET = 'googlesheet',
+  JSON = 'json',
   NOTION = 'notion',
 }
 
@@ -19,6 +21,10 @@ export async function fetchGames(source: string): Promise<Array<GameObject>> {
     case Store.GOOGLE_SHEET: {
       const [sheetId] = params
       return await fetchGoogleSheetStore(sheetId)
+    }
+    case Store.JSON: {
+      const url = params.join(':')
+      return await fetchJSONStore(url)
     }
     case Store.NOTION: {
       const [databaseId] = params
