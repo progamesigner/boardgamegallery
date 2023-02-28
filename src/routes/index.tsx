@@ -20,7 +20,9 @@ export default function (): JSX.Element {
   const [getError, setError] = createSignal<boolean>(false)
   const [getGames, setGames] = createSignal<Array<GameObject>>([])
   const [getLoading, setLoading] = createSignal<boolean>(true)
-  const [getSource, setSource] = createSignal<string | undefined>(import.meta.env.VITE_DEFAULT_STORE)
+  const [getSource, setSource] = createSignal<string | undefined>(
+    import.meta.env.VITE_DEFAULT_STORE
+  )
 
   if (
     import.meta.env.VITE_ENABLE_SOURCE_QUERY &&
@@ -30,9 +32,10 @@ export default function (): JSX.Element {
   }
 
   onMount(async () => {
-    if (getSource()) {
+    const source = getSource()
+    if (source) {
       try {
-        const games = await fetchGames(getSource())
+        const games = await fetchGames(source)
         setGames(games)
         setError(false)
       } catch (error) {

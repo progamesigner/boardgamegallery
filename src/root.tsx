@@ -21,14 +21,14 @@ export default function Root() {
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Body>
-        <header>
+      <Body class="flex h-screen flex-col">
+        <header class="mb-2">
           <div class="container mx-auto py-8">
             <h1 class="text-5xl font-bold">Board Game Gallery</h1>
           </div>
         </header>
 
-        <main>
+        <main class="mb-2">
           <div class="container mx-auto">
             <Suspense>
               <ErrorBoundary>
@@ -40,10 +40,12 @@ export default function Root() {
           </div>
         </main>
 
-        <footer>
-          <div class="container mx-auto max-w-xl py-8 text-center">
-            Made with <span class="text-red-600">♥</span> By{' '}
-            <a href="https://progamesigner.com">progamesigner</a>.
+        <footer class="footer footer-center mt-auto bg-base-300 p-4">
+          <div class="container mx-auto">
+            <p>
+              Made with <span class="text-red-600">♥</span> by{' '}
+              <a href="https://progamesigner.com">progamesigner</a>.
+            </p>
           </div>
         </footer>
 
