@@ -20,7 +20,7 @@ export default function (): JSX.Element {
   const [getError, setError] = createSignal<boolean>(false)
   const [getGames, setGames] = createSignal<Array<GameObject>>([])
   const [getLoading, setLoading] = createSignal<boolean>(true)
-  const [getSource, setSource] = createSignal<string>(import.meta.env.VITE_DEFAULT_STORE)
+  const [getSource, setSource] = createSignal<string | undefined>(import.meta.env.VITE_DEFAULT_STORE)
 
   if (
     import.meta.env.VITE_ENABLE_SOURCE_QUERY &&

@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_DEFAULT_STORE: string
-
-  readonly VITE_ENABLE_SOURCE_QUERY: string
+  readonly VITE_APP_URL?: string
+  readonly VITE_COMMIT_REF?: string
+  readonly VITE_DEFAULT_STORE?: string
+  readonly VITE_ENABLE_SOURCE_QUERY?: boolean
 }
 
 interface ImportMeta {
