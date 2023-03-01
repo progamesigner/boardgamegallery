@@ -2,6 +2,8 @@ import type { GameObject } from '~/types'
 
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
+import { addImageLoader } from '.'
+
 const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`
 
 function makeURL(ids: string): string {
@@ -114,20 +116,13 @@ export function getGameImages(items: Array<GameObject>): Array<GameObject> {
       if (!item.image) {
         return {
           ...item,
-          imageLoader: async () => {
-            if (item.imageLoader) {
-              const previous = await Promise.resolve(item.imageLoader())
-              if (previous) {
-                return previous
-              }
-            }
-
+          imageLoader: addImageLoader(item, async () => {
             if (item.bggId) {
               return await getImageURL(item.bggId.toString(), preloadedImageURLs)
             }
 
             return null
-          },
+          }),
         }
       }
       return item

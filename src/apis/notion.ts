@@ -2,6 +2,7 @@ import type { APIResponse as ImageResponse } from '~/routes/notion/v1/blocks/[id
 import type { APIResponse as QueryResponse } from '~/routes/notion/v1/databases/[id]/query/games'
 import type { GameObject } from '~/types'
 
+import { addImageLoader } from '.'
 import { getGameImages } from './boardgamegeek'
 
 interface State {
@@ -40,15 +41,7 @@ export default async function (databaseId: string): Promise<Array<GameObject>> {
     const items = query.data.map(item => {
       return {
         ...item,
-        imageLoader: async () => {
-          if (item.imageLoader) {
-            const previous = await Promise.resolve(item.imageLoader())
-            if (previous) {
-              return previous
-            }
-          }
-          return await getContentImge(item.id)
-        },
+        imageLoader: addImageLoader(item, async () => await getContentImge(item.id)),
       }
     })
 

@@ -10,6 +10,25 @@ const enum Store {
   NOTION = 'notion',
 }
 
+export function addImageLoader(
+  item: GameObject,
+  next: () => Promise<string | null>
+): () => Promise<string | null> {
+  if (item.imageLoader) {
+    const previousLoader = item.imageLoader
+    return async function (): Promise<string | null> {
+      const previousValue = await Promise.resolve(previousLoader())
+      if (previousValue) {
+        return previousValue
+      }
+
+      return await next()
+    }
+  }
+
+  return next
+}
+
 export async function fetchGames(source: string): Promise<Array<GameObject>> {
   const params = source.split(':')
   const store = params.shift() as Store | undefined
