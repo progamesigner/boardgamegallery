@@ -48,7 +48,7 @@ export default function (): JSX.Element {
   })
 
   return (
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4">
       <Switch fallback={<Loading />}>
         <Match when={!getSource()}>
           <ErrorMessage>No source available ...</ErrorMessage>
@@ -68,21 +68,17 @@ export default function (): JSX.Element {
                     <GameItem item={item()} />
                   </ModalTrigger>
                   <Portal>
-                    <Modal
-                      id={`modal-${item().id}`}
-                      topbar={
-                        <ModalClose id={`modal-${item().id}`}>
-                          <Show when={item().bggId}>
-                            <a
-                              href={`https://boardgamegeek.com/boardgame/${item().bggId}`}
-                              class="pr-4 text-gray-100"
-                            >
-                              BGG
-                            </a>
-                          </Show>
-                        </ModalClose>
-                      }
-                    >
+                    <Modal id={`modal-${item().id}`}>
+                      <ModalClose id={`modal-${item().id}`}>
+                        <Show when={item().bggId}>
+                          <a
+                            href={`https://boardgamegeek.com/boardgame/${item().bggId}`}
+                            class="pr-4 text-sm text-gray-100"
+                          >
+                            BGG
+                          </a>
+                        </Show>
+                      </ModalClose>
                       <GameDetail item={item()} />
                     </Modal>
                   </Portal>
