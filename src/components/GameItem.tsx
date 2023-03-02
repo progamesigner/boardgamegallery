@@ -12,17 +12,18 @@ interface Props {
 
 export function GameItem(props: Props): JSX.Element {
   return (
-    <div class="relative block cursor-pointer rounded border bg-gray-300 hover:bg-gray-200">
-      <figure class="pb-[100%]">
+    <div class="relative block cursor-pointer">
+      <figure class="relative overflow-hidden rounded bg-gray-700 pb-[125%]">
         <GameImage item={props.item} />
-        <figcaption class="absolute inset-x-0 bottom-0 rounded-b bg-black/75 px-4 py-2 text-sm">
-          <h2 class="text-gray-100">{props.item.name}</h2>
-          <h3 class="pt-2 text-gray-300">{props.item.description}</h3>
+        <figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-b from-black/50 to-gray-900/90 px-4 py-2">
+          <h2 class="overflow-hidden overflow-ellipsis whitespace-nowrap text-xl font-bold text-gray-100">
+            {props.item.name}
+          </h2>
         </figcaption>
       </figure>
 
       <Show when={props.item.label}>
-        <span class="absolute top-1 -right-1 rounded bg-gray-600 p-1 text-center text-sm text-white shadow">
+        <span class="absolute top-2 -right-2 rounded bg-gray-700 px-4 py-2 text-center text-white shadow">
           {props.item.label}
         </span>
       </Show>
