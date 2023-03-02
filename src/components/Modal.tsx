@@ -12,7 +12,7 @@ export function Modal(props: Props): JSX.Element {
         for={props.id}
         class="modal flex cursor-pointer items-end justify-center bg-black/90 sm:items-center"
       >
-        <label class="relative mx-4 w-full max-w-none cursor-auto rounded bg-gray-700 p-4 sm:w-11/12 sm:max-w-xl sm:px-6">
+        <label class="relative w-full max-w-xl cursor-auto overflow-hidden rounded bg-gray-700">
           {props.children}
         </label>
       </label>

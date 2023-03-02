@@ -44,7 +44,7 @@ export default function Root() {
           <div class="container mx-auto">
             <p>
               Made with <span class="text-red-600">♥</span> by{' '}
-              <a href="https://progamesigner.com">progamesigner</a>.
+              <a class="link link-hover" href="https://progamesigner.com">progamesigner</a>.
             </p>
           </div>
         </footer>
