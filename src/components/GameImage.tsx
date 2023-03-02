@@ -67,7 +67,16 @@ export function GameImage(props: Props): JSX.Element {
         <div class="loading absolute flex h-full w-full items-center justify-center rounded" />
       }
     >
-      <img class="absolute h-full w-full rounded object-cover" src={url()} />
+      <Show
+        when={url()}
+        fallback={
+          <div class="absolute flex h-full w-full items-center justify-center rounded bg-gray-900 text-gray-100">
+            No Image
+          </div>
+        }
+      >
+        <img class="absolute h-full w-full rounded object-cover" src={url()} />
+      </Show>
     </Show>
   )
 }
