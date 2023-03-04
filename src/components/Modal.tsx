@@ -22,7 +22,7 @@ export function Modal(props: Props): JSX.Element {
 
 export function ModalClose(props: Props): JSX.Element {
   return (
-    <div class="flex items-center justify-end">
+    <div class="m-2 flex items-center justify-end">
       {props.children}
       <label
         for={props.id}
