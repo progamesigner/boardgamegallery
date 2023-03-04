@@ -10,7 +10,7 @@ export function Modal(props: Props): JSX.Element {
       <input type="checkbox" id={props.id} class="modal-toggle" />
       <label
         for={props.id}
-        class="modal flex cursor-pointer items-end justify-center bg-black/90 sm:items-center"
+        class="modal flex cursor-pointer items-end justify-center bg-black/90 transition-opacity sm:items-center"
       >
         <label class="relative max-h-screen w-full cursor-auto overflow-hidden rounded bg-gray-700 sm:max-w-xl">
           {props.children}
