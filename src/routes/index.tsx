@@ -48,7 +48,7 @@ export default function (): JSX.Element {
   })
 
   return (
-    <div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6">
+    <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
       <Switch fallback={<Loading />}>
         <Match when={!getSource()}>
           <ErrorMessage>No source available ...</ErrorMessage>
@@ -73,9 +73,18 @@ export default function (): JSX.Element {
                         <Show when={item().bggId}>
                           <a
                             href={`https://boardgamegeek.com/boardgame/${item().bggId}`}
-                            class="pr-4 text-sm text-gray-100"
+                            class="flex flex-row items-center text-sm text-gray-100"
                           >
                             BGG
+                            <span class="ml-1 h-4 w-4 fill-none stroke-current stroke-1">
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                                />
+                              </svg>
+                            </span>
                           </a>
                         </Show>
                       </ModalClose>
