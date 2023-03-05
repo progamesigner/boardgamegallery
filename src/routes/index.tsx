@@ -14,14 +14,36 @@ import { Header } from '~/components/Header'
 import { ImageCacheProvider } from '~/components/GameImage'
 import { Loading } from '~/components/Loading'
 import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
+import { Tag, Tags } from '~/components/Tag'
 
 import { fetchGames } from '~/apis'
+
+function defaultPlayers(): Array<string> {
+  const players = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(players => `${players} 人`)
+  return [...players, '12 人以上']
+}
+
+function defaultTimes(): Array<string> {
+  const times = [15, 30, 45, 60, 90, 120, 150].map(players => `${players} 分鐘`)
+  return ['15 分鐘以內', ...times, '150 分鐘以上']
+}
+
+function processTags(games: Array<GameObject>): Array<string> {
+  const tags = new Set<string>()
+  games.forEach(game => {
+    Array.prototype.concat([], game.types, game.tags).forEach(tag => tags.add(tag))
+  })
+  return Array.from(tags)
+}
 
 export default function (): JSX.Element {
   const [searchParams] = useSearchParams()
 
   const [getError, setError] = createSignal<boolean>(false)
   const [getGames, setGames] = createSignal<Array<GameObject>>([])
+  const [getTags, setTags] = createSignal<Array<string>>([])
+  const [getTimes] = createSignal<Array<string>>(defaultTimes())
+  const [getPlayers] = createSignal<Array<string>>(defaultPlayers())
   const [getLoading, setLoading] = createSignal<boolean>(true)
   const [getSource, setSource] = createSignal<string | undefined>(
     import.meta.env.VITE_DEFAULT_STORE
@@ -40,6 +62,7 @@ export default function (): JSX.Element {
       try {
         const games = await fetchGames(source)
         setGames(games)
+        setTags(processTags(games))
         setError(false)
       } catch (error) {
         console.error(error)
@@ -55,6 +78,26 @@ export default function (): JSX.Element {
       <header class="mb-2">
         <div class="container mx-auto">
           <Header />
+          <div class="flex flex-col gap-2 px-4">
+            <Tags>
+              <Index each={getPlayers()}>{player => <Tag>{player()}</Tag>}</Index>
+            </Tags>
+            <Tags>
+              <Index each={getTimes()}>{time => <Tag>{time()}</Tag>}</Index>
+            </Tags>
+            <Tags>
+              <Show
+                when={getTags().length > 0}
+                fallback={
+                  <Tag>
+                    <Loading iconOnly={true} />
+                  </Tag>
+                }
+              >
+                <Index each={getTags()}>{tag => <Tag>{tag()}</Tag>}</Index>
+              </Show>
+            </Tags>
+          </div>
         </div>
       </header>
 
@@ -65,7 +108,9 @@ export default function (): JSX.Element {
               <ErrorMessage>No source available ...</ErrorMessage>
             </Match>
             <Match when={getLoading()}>
-              <Loading />
+              <div class="flex h-96 max-h-screen justify-center">
+                <Loading />
+              </div>
             </Match>
             <Match when={getError()}>
               <ErrorMessage>Error!</ErrorMessage>
@@ -88,7 +133,7 @@ export default function (): JSX.Element {
                                   class="flex flex-row items-center text-sm text-gray-100"
                                 >
                                   BGG
-                                  <span class="ml-1 h-4 w-4 fill-none stroke-current stroke-1">
+                                  <span class="mx-1 h-4 w-4 fill-none stroke-current stroke-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                       <path
                                         stroke-linecap="round"

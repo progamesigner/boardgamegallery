@@ -1,13 +1,19 @@
 import type { JSX } from 'solid-js'
 
-export function Loading(): JSX.Element {
+import { Show } from 'solid-js'
+
+interface Props {
+  iconOnly?: boolean
+}
+
+export function Loading(props: Props): JSX.Element {
   return (
-    <div class="card my-auto">
-      <div class="card-body flex h-96 max-h-screen justify-center">
-        <div class="flex flex-col items-center">
-          <button class="loading btn-square btn" />
-          <p>載入中</p>
-        </div>
+    <div class="card">
+      <div class="card-body flex max-h-screen flex-row items-center">
+        <button class="loading btn-square btn" />
+        <Show when={!props.iconOnly}>
+          <p>載入中⋯⋯</p>
+        </Show>
       </div>
     </div>
   )
