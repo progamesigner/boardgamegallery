@@ -1,4 +1,4 @@
-import { Suspense } from 'solid-js'
+import { lazy, Suspense } from 'solid-js'
 import {
   Body,
   ErrorBoundary,
@@ -13,6 +13,11 @@ import {
 
 import './root.css'
 
+const Header = lazy(async () => {
+  const module = await import('~/components/Header')
+  return { default: module.Header }
+})
+
 export default function Root() {
   return (
     <Html lang="en">
@@ -23,8 +28,12 @@ export default function Root() {
       </Head>
       <Body class="flex h-screen flex-col">
         <header class="mb-2">
-          <div class="container mx-auto py-8">
-            <h1 class="text-5xl font-bold">Board Game Gallery</h1>
+          <div class="container mx-auto">
+            <Suspense>
+              <ErrorBoundary>
+                <Header />
+              </ErrorBoundary>
+            </Suspense>
           </div>
         </header>
 
@@ -44,7 +53,10 @@ export default function Root() {
           <div class="container mx-auto">
             <p>
               Made with <span class="text-red-600">♥</span> by{' '}
-              <a class="link link-hover" href="https://progamesigner.com">progamesigner</a>.
+              <a class="link link-hover" href="https://progamesigner.com">
+                progamesigner
+              </a>
+              .
             </p>
           </div>
         </footer>
