@@ -47,7 +47,7 @@ export function GameDetail(props: Props): JSX.Element {
       <h3 class="overflow-hidden overflow-ellipsis whitespace-nowrap text-gray-300">
         {props.item.originalName}
       </h3>
-      <div class="flex flex-row items-start gap-4 pt-2 pb-4">
+      <div class="flex flex-row gap-4 pt-2 pb-4">
         <div class="relative shrink-0 basis-5/12">
           <figure class="pb-[125%]">
             <GameImage item={props.item} />
