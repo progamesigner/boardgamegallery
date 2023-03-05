@@ -60,18 +60,18 @@ export default function (): JSX.Element {
 
       <main class="mb-2">
         <div class="container mx-auto">
-          <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
-            <Switch fallback={<Loading />}>
-              <Match when={!getSource()}>
-                <ErrorMessage>No source available ...</ErrorMessage>
-              </Match>
-              <Match when={getLoading()}>
-                <Loading />
-              </Match>
-              <Match when={getError()}>
-                <ErrorMessage>Error!</ErrorMessage>
-              </Match>
-              <Match when={!getLoading() && !getError()}>
+          <Switch fallback={<Loading />}>
+            <Match when={!getSource()}>
+              <ErrorMessage>No source available ...</ErrorMessage>
+            </Match>
+            <Match when={getLoading()}>
+              <Loading />
+            </Match>
+            <Match when={getError()}>
+              <ErrorMessage>Error!</ErrorMessage>
+            </Match>
+            <Match when={!getLoading() && !getError()}>
+              <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
                 <ImageCacheProvider>
                   <Index each={getGames()} fallback={<ErrorMessage>No Data ...</ErrorMessage>}>
                     {item => (
@@ -107,9 +107,9 @@ export default function (): JSX.Element {
                     )}
                   </Index>
                 </ImageCacheProvider>
-              </Match>
-            </Switch>
-          </div>
+              </div>
+            </Match>
+          </Switch>
         </div>
       </main>
 
