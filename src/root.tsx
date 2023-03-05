@@ -18,6 +18,11 @@ const Header = lazy(async () => {
   return { default: module.Header }
 })
 
+const Footer = lazy(async () => {
+  const module = await import('~/components/Footer')
+  return { default: module.Footer }
+})
+
 export default function Root() {
   return (
     <Html lang="en">
@@ -51,13 +56,11 @@ export default function Root() {
 
         <footer class="footer footer-center mt-auto bg-base-300 p-4">
           <div class="container mx-auto">
-            <p>
-              Made with <span class="text-red-600">♥</span> by{' '}
-              <a class="link link-hover" href="https://progamesigner.com">
-                progamesigner
-              </a>
-              .
-            </p>
+            <Suspense>
+              <ErrorBoundary>
+                <Footer />
+              </ErrorBoundary>
+            </Suspense>
           </div>
         </footer>
 
