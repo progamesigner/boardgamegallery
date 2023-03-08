@@ -15,7 +15,7 @@ import './root.css'
 
 export default function Root() {
   return (
-    <Html lang="en">
+    <Html lang="en" class="bg-gray-900 text-gray-100">
       <Head>
         <Title>Board Game Gallery</Title>
         <Meta charset="utf-8" />

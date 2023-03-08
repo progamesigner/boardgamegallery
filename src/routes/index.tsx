@@ -192,7 +192,7 @@ export default function (): JSX.Element {
   })
 
   return (
-    <div class="flex min-h-screen flex-col bg-gray-900 text-gray-100">
+    <div class="flex min-h-screen flex-col">
       <header class="mb-2">
         <div class="container mx-auto">
           <Header />
