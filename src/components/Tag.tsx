@@ -57,7 +57,7 @@ export function Tag(props: Props): JSX.Element {
         <span class="badge rounded bg-yellow-700 py-2">{props.children}</span>
       </Match>
       <Match when={true}>
-        <span class="badge rounded bg-gray-300 py-2">{props.children}</span>
+        <span class="badge rounded bg-gray-700 py-2">{props.children}</span>
       </Match>
     </Switch>
   )

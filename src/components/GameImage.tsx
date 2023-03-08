@@ -70,7 +70,7 @@ export function GameImage(props: Props): JSX.Element {
       <Show
         when={url()}
         fallback={
-          <div class="absolute flex h-full w-full items-center justify-center rounded bg-gray-900 text-gray-100">
+          <div class="absolute flex h-full w-full items-center justify-center rounded bg-gray-700 text-gray-300">
             No Image
           </div>
         }

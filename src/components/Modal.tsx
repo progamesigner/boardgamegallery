@@ -12,7 +12,7 @@ export function Modal(props: Props): JSX.Element {
         for={props.id}
         class="modal flex cursor-pointer items-end justify-center bg-black/90 transition-opacity sm:items-center"
       >
-        <label class="relative max-h-screen w-full cursor-auto overflow-hidden rounded bg-gray-700 sm:max-w-xl">
+        <label class="relative max-h-screen w-full cursor-auto overflow-hidden rounded bg-gray-900 sm:max-w-xl">
           {props.children}
         </label>
       </label>
@@ -26,7 +26,7 @@ export function ModalClose(props: Props): JSX.Element {
       {props.children}
       <label
         for={props.id}
-        class="btn-circle btn flex cursor-pointer items-center justify-center rounded-full stroke-current p-2 text-gray-100 hover:bg-gray-900"
+        class="btn-circle btn flex cursor-pointer items-center justify-center rounded-full stroke-current p-2 text-gray-100 hover:bg-gray-700"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path
