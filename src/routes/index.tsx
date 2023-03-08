@@ -120,8 +120,6 @@ export default function (): JSX.Element {
     const activeTimeFilters = Array.from(getTimeFilters())
     const activeTagFilters = Array.from(getTagFilters())
 
-    console.log(activePlayerFilters)
-    console.log(activeTimeFilters)
     return games
       .filter(
         activePlayerFilters.length > 0
