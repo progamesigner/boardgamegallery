@@ -67,10 +67,9 @@ export default function (): JSX.Element {
       } catch (error) {
         console.error(error)
         setError(true)
-      } finally {
-        setLoading(false)
       }
     }
+    setLoading(false)
   })
 
   return (
@@ -85,18 +84,20 @@ export default function (): JSX.Element {
             <Tags>
               <Index each={getTimes()}>{time => <Tag>{time()}</Tag>}</Index>
             </Tags>
-            <Tags>
-              <Show
-                when={getTags().length > 0}
-                fallback={
-                  <Tag>
-                    <Loading iconOnly={true} />
-                  </Tag>
-                }
-              >
-                <Index each={getTags()}>{tag => <Tag>{tag()}</Tag>}</Index>
-              </Show>
-            </Tags>
+            <Switch>
+              <Match when={getLoading()}>
+                <Tag>
+                  <Loading iconOnly={true} />
+                </Tag>
+              </Match>
+              <Match when={true}>
+                <Tags>
+                  <Show when={getTags().length > 0}>
+                    <Index each={getTags()}>{tag => <Tag>{tag()}</Tag>}</Index>
+                  </Show>
+                </Tags>
+              </Match>
+            </Switch>
           </div>
         </div>
       </header>
