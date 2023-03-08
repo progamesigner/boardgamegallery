@@ -6,13 +6,13 @@ import { createSignal, Index, Match, onMount, Show, Switch } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { useSearchParams } from 'solid-start'
 
-import { ErrorMessage } from '~/components/ErrorMessage'
 import { Footer } from '~/components/Footer'
 import { GameDetail } from '~/components/GameDetail'
 import { GameItem } from '~/components/GameItem'
 import { Header } from '~/components/Header'
 import { ImageCacheProvider } from '~/components/GameImage'
 import { Loading } from '~/components/Loading'
+import { Message as Message } from '~/components/Message'
 import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
 import { Tag, Tags } from '~/components/Tag'
 
@@ -74,7 +74,7 @@ export default function (): JSX.Element {
   })
 
   return (
-    <div class="flex h-screen flex-col">
+    <div class="flex min-h-screen flex-col bg-gray-900 text-gray-100">
       <header class="mb-2">
         <div class="container mx-auto">
           <Header />
@@ -105,20 +105,28 @@ export default function (): JSX.Element {
         <div class="container mx-auto">
           <Switch fallback={<Loading />}>
             <Match when={!getSource()}>
-              <ErrorMessage>No source available ...</ErrorMessage>
+              <Message>沒有資料來源⋯⋯</Message>
             </Match>
             <Match when={getLoading()}>
-              <div class="flex h-96 max-h-screen justify-center">
+              <Message>
                 <Loading />
-              </div>
+              </Message>
             </Match>
             <Match when={getError()}>
-              <ErrorMessage>Error!</ErrorMessage>
+              <Message>發生錯誤！</Message>
             </Match>
             <Match when={!getLoading() && !getError()}>
-              <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
+              <div
+                class="grid grid-cols-1 gap-4 p-4"
+                classList={{
+                  'sm:grid-cols-2': getGames().length > 0,
+                  'md:grid-cols-3': getGames().length > 0,
+                  'lg:grid-cols-4': getGames().length > 0,
+                  '2xl:grid-cols-6': getGames().length > 0,
+                }}
+              >
                 <ImageCacheProvider>
-                  <Index each={getGames()} fallback={<ErrorMessage>No Data ...</ErrorMessage>}>
+                  <Index each={getGames()} fallback={<Message>沒有任何資料⋯⋯</Message>}>
                     {item => (
                       <>
                         <ModalTrigger id={`modal-${item().id}`}>
@@ -158,7 +166,7 @@ export default function (): JSX.Element {
         </div>
       </main>
 
-      <footer class="footer footer-center mt-auto bg-base-300 p-4">
+      <footer class="footer footer-center mt-auto bg-gray-700 p-4">
         <div class="container mx-auto">
           <Footer />
         </div>
