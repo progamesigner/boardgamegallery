@@ -42,9 +42,7 @@ function makeSVGPath(data: Uint8Array, size: number, margin = 0): string {
 export function Header(): JSX.Element {
   const { pathname, search } = useLocation()
 
-  const url = `${import.meta.env.VITE_APP_URL}${pathname}${search}`
-
-  const qrcode = create(url, {})
+  const qrcode = create(`${import.meta.env.VITE_APP_URL}${pathname}${search}`, {})
   const path = makeSVGPath(qrcode.modules.data, qrcode.modules.size)
 
   return (
@@ -57,7 +55,7 @@ export function Header(): JSX.Element {
         </div>
         <div class="flex gap-2">
           <ModalTrigger id="modal-qecode">
-            <span class="block w-12 cursor-pointer fill-none stroke-current stroke-2" href={url}>
+            <span class="block w-12 cursor-pointer fill-none stroke-current stroke-2">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
