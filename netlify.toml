@@ -5,5 +5,3 @@
 
 [build.environment]
   NODE_VERSION = "18.13.0"
-  SERVER_ENABLE_NOTION_QUERY = "1"
-  VITE_ENABLE_SOURCE_QUERY = "1"
