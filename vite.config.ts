@@ -6,7 +6,8 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   define: {
-    'process.env.URL': JSON.stringify(process.env.URL),
+    APP_BASE_URL: JSON.stringify(process.env.URL),
+    PAPA_BROWSER_CONTEXT: 'true',
   },
   plugins: [
     solid({
@@ -18,6 +19,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      papaparse: 'papaparse/papaparse.min',
       qrcode: 'qrcode/lib/browser',
     },
   },

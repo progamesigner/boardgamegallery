@@ -42,8 +42,8 @@ function makeSVGPath(data: Uint8Array, size: number, margin = 0): string {
 function usePageURL(): string {
   const { pathname, search } = useLocation()
 
-  if (process.env.URL) {
-    return `${process.env.URL}${pathname}${search}`
+  if (APP_BASE_URL) {
+    return `${APP_BASE_URL}${pathname}${search}`
   }
 
   if (import.meta.env.SSR) {
