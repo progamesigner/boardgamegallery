@@ -16,4 +16,9 @@ export default defineConfig({
       ssr: true,
     }),
   ],
+  resolve: {
+    alias: {
+      qrcode: 'qrcode/lib/browser',
+    },
+  },
 })
