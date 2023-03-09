@@ -21,7 +21,7 @@ export default function (): JSX.Element {
           <div class="flex flex-col items-center justify-center p-4">
             <h2 class="pb-2 text-3xl font-bold">找不到網頁</h2>
             <p class="pb-4">找不到指定的網頁，請回到首頁。</p>
-            <a class="link link-hover" href={import.meta.env.VITE_APP_URL}>
+            <a class="link link-hover" href={import.meta.env.BASE_URL}>
               點此回到首頁
             </a>
           </div>

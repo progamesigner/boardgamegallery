@@ -39,10 +39,24 @@ function makeSVGPath(data: Uint8Array, size: number, margin = 0): string {
   return operations.join('')
 }
 
-export function Header(): JSX.Element {
+function usePageURL(): string {
   const { pathname, search } = useLocation()
 
-  const qrcode = create(`${import.meta.env.VITE_APP_URL}${pathname}${search}`, {})
+  if (process.env.URL) {
+    return `${process.env.URL}${pathname}${search}`
+  }
+
+  if (import.meta.env.SSR) {
+    return `${pathname}${search}`
+  }
+
+  return window.location.href
+}
+
+export function Header(): JSX.Element {
+  const url = usePageURL()
+  console.log(url)
+  const qrcode = create(url, {})
   const path = makeSVGPath(qrcode.modules.data, qrcode.modules.size)
 
   return (

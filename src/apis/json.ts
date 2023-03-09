@@ -8,7 +8,7 @@ interface JSONGamePayload {
 }
 
 export default async function (url: URL | string): Promise<Array<GameObject>> {
-  const response = await fetch(new URL(url, import.meta.env.VITE_APP_URL))
+  const response = await fetch(process.env.URL ? new URL(url, process.env.URL) : url)
   if (!response.ok) {
     throw new Error('Failed to fetch games')
   }
