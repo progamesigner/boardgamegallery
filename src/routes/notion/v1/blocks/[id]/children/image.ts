@@ -6,7 +6,7 @@ import { json } from 'solid-start'
 export type APIResponse = string | null
 
 const client = new Client({
-  auth: process.env.NOTION_TOKEN,
+  auth: process.env.SERVER_NOTION_TOKEN,
 })
 
 async function handle(blockId: string): Promise<APIResponse> {
@@ -44,12 +44,12 @@ async function handle(blockId: string): Promise<APIResponse> {
 }
 
 export async function GET({ params }: APIEvent): Promise<Response> {
-  if (!process.env.ENABLE_NOTION_QUERY) {
+  if (!process.env.SERVER_ENABLE_NOTION_QUERY) {
     return new Response(null, { status: 404 })
   }
 
-  if (!process.env.NOTION_TOKEN) {
-    return new Response(null, { status: 404 })
+  if (!process.env.SERVER_NOTION_TOKEN) {
+    return new Response(null, { status: 403 })
   }
 
   try {

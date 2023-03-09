@@ -46,7 +46,7 @@ export interface APIResponse {
 }
 
 const client = new Client({
-  auth: process.env.NOTION_TOKEN,
+  auth: process.env.SERVER_NOTION_TOKEN,
 })
 
 function extractArrayProperty(property: NotionProperty): Array<string> {
@@ -414,12 +414,12 @@ async function handle(databaseId: string, cursor?: string): Promise<APIResponse>
 export async function GET({ params, request }: APIEvent): Promise<Response> {
   const url = new URL(request.url)
 
-  if (!process.env.ENABLE_NOTION_QUERY) {
+  if (!process.env.SERVER_ENABLE_NOTION_QUERY) {
     return new Response(null, { status: 404 })
   }
 
-  if (!process.env.NOTION_TOKEN) {
-    return new Response(null, { status: 404 })
+  if (!process.env.SERVER_NOTION_TOKEN) {
+    return new Response(null, { status: 403 })
   }
 
   try {
