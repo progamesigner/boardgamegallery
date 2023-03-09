@@ -430,6 +430,7 @@ export async function GET({ params, request }: APIEvent): Promise<Response> {
   try {
     return json(await handle(params.id, url.searchParams.get('cursor') ?? undefined))
   } catch (error) {
+    console.error(error)
     return json(error)
   }
 }

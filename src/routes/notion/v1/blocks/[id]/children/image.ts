@@ -57,6 +57,7 @@ export async function GET({ params }: APIEvent): Promise<Response> {
   try {
     return json(await handle(params.id))
   } catch (error) {
+    console.error(error)
     return json(error)
   }
 }
