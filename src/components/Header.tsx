@@ -50,7 +50,7 @@ function usePageURL(): string {
     return `${pathname}${search}`
   }
 
-  return window.location.href
+  return `${window.location.origin}${pathname}${search}`
 }
 
 export function Header(): JSX.Element {
