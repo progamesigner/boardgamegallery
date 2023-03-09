@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [
     solid({
       adapter: adapter({
-        edge: true,
+        edge: false,
       }),
       ssr: true,
     }),
