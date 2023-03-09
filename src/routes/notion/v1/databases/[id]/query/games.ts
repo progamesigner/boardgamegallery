@@ -1,9 +1,11 @@
-import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
+import type {
+  PageObjectResponse,
+  QueryDatabaseResponse,
+} from '@notionhq/client/build/src/api-endpoints'
 import type { APIEvent } from 'solid-start'
 
 import type { GameData, GameObject } from '~/types'
 
-import { Client } from '@notionhq/client'
 import { json } from 'solid-start'
 
 const enum Field {
@@ -44,10 +46,6 @@ export interface APIResponse {
   data: Array<GameData>
   cursor: string | null
 }
-
-const client = new Client({
-  auth: process.env.SERVER_NOTION_TOKEN,
-})
 
 function extractArrayProperty(property: NotionProperty): Array<string> {
   switch (property.type) {
@@ -302,11 +300,19 @@ function splitStringArray(value: string): Array<string> {
 async function handle(databaseId: string, cursor?: string): Promise<APIResponse> {
   const games: Array<GameObject> = []
 
-  const items = await client.databases.query({
-    database_id: databaseId,
-    start_cursor: cursor,
-    archived: false,
+  const response = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28',
+      Authorization: `Bearer ${process.env.SERVER_NOTION_TOKEN}`,
+    },
+    body: JSON.stringify({
+      start_cursor: cursor,
+    }),
   })
+  const items: QueryDatabaseResponse = await response.json()
+  console.log(items)
 
   items.results.map(item => {
     if ('properties' in item) {

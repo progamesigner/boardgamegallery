@@ -1,18 +1,20 @@
+import type { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints'
 import type { APIEvent } from 'solid-start'
 
-import { Client } from '@notionhq/client'
 import { json } from 'solid-start'
 
 export type APIResponse = string | null
 
-const client = new Client({
-  auth: process.env.SERVER_NOTION_TOKEN,
-})
-
 async function handle(blockId: string): Promise<APIResponse> {
-  const data = await client.blocks.children.list({
-    block_id: blockId,
+  const response = await fetch(`https://api.notion.com/v1/blocks/${blockId}/children`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28',
+      Authorization: `Bearer ${process.env.SERVER_NOTION_TOKEN}`,
+    },
   })
+  const data: ListBlockChildrenResponse = await response.json()
 
   return data.results.reduce<string | null>((url, block) => {
     if (!url && 'type' in block) {
