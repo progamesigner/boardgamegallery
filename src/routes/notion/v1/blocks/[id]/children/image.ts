@@ -14,9 +14,9 @@ async function handle(blockId: string): Promise<APIResponse> {
       Authorization: `Bearer ${process.env.SERVER_NOTION_TOKEN}`,
     },
   })
-  const data: ListBlockChildrenResponse = await response.json()
+  const items: ListBlockChildrenResponse = await response.json()
 
-  return data.results.reduce<string | null>((url, block) => {
+  return items.results.reduce<string | null>((url, block) => {
     if (!url && 'type' in block) {
       switch (block.type) {
         case 'file':

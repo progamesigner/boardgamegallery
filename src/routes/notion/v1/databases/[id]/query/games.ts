@@ -312,7 +312,6 @@ async function handle(databaseId: string, cursor?: string): Promise<APIResponse>
     }),
   })
   const items: QueryDatabaseResponse = await response.json()
-  console.log(items)
 
   items.results.map(item => {
     if ('properties' in item) {
