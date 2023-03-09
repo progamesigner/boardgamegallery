@@ -31,7 +31,7 @@ export function addImageLoader(
 
 export async function fetchGames(source: string): Promise<Array<GameObject>> {
   const params = source.split(':')
-  const store = params.shift() as Store | undefined
+  const store = params.shift()
   if (!store) {
     throw new Error('No data store specified')
   }

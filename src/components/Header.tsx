@@ -12,7 +12,7 @@ function makeSVGPath(data: Uint8Array, size: number, margin = 0): string {
   let skipBy = 0 // @note: number of non-masked modules
   let startRow = false // @note: should start as new row
 
-  const operations = [] as Array<string>
+  const operations: Array<string> = []
   for (let index = 0; index < data.length; ++index) {
     const x = Math.floor(index % size)
     const y = Math.floor(index / size)
@@ -55,7 +55,6 @@ function usePageURL(): string {
 
 export function Header(): JSX.Element {
   const url = usePageURL()
-  console.log(url)
   const qrcode = create(url, {})
   const path = makeSVGPath(qrcode.modules.data, qrcode.modules.size)
 
