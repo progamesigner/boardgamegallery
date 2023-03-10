@@ -91,15 +91,15 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
  - `ID`: 可選，如果填寫需要是任意不重複字串
  - `NAME`: 遊戲名稱，必填
  - `BGGID`: 如果有的話會顯示連結，並且在沒有設定 `IMAGE` 的時候使用 [BoardGameGeek](https://boardgamegeek.com/) 上的圖片
- - `ORIGINAL_NAME`: 遊戲原名
+ - `ORIGINALNAME`: 遊戲原名
  - `DESCRIPTION`: 遊戲描述
  - `LABEL`: 遊戲的 Label (文字)
  - `IMAGE`: 遊戲的圖片，需要是 HTTPS 網址
  - `TYPES`: 遊戲類型，多個可以用全形頓號或空格分隔
- - `MINIMAL_PLAYERS`: 最少遊戲人數
- - `MAXIMAL_PLAYERS`: 最多遊戲人數
- - `MINIMAL_MINUTES`: 最少遊戲時間 (分鐘)
- - `MAXIMAL_MINUTES`: 最多遊戲時間 (分鐘)
+ - `MINPLAYERS`: 最少遊戲人數
+ - `MAXPLAYERS`: 最多遊戲人數
+ - `MINMINUTES`: 最少遊戲時間 (分鐘)
+ - `MAXMINUTES`: 最多遊戲時間 (分鐘)
  - `TAGS`: 遊戲標籤，多個可以用全形頓號或空格分隔
 
 另外一些其他的欄位也可以使用，這是為了和現有的其他桌遊清單格式相容：
