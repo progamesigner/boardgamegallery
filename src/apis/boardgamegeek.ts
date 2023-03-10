@@ -86,29 +86,27 @@ async function getImageURLs(ids: Array<string>): Promise<Record<string, string |
 
 async function getImageURL(
   id: string,
-  preloadedImageURLS: Record<string, string | null>
+  deferredImageURLs: Promise<Record<string, string | null>>
 ): Promise<string | null> {
-  if (!preloadedImageURLS[id]) {
-    const images = await getImageURLs([id])
-    return images[id]
-  }
-  return preloadedImageURLS[id] ?? null
+  return deferredImageURLs.then(images => images[id] ?? null).catch(() => null)
 }
 
 export function getGameImages(items: Array<GameObject>): Array<GameObject> {
-  const preloadedImageURLs: Record<string, string | null> = {}
-
   const missedImageIds = items
     .filter(item => !item.image)
     .map(item => (item.bggId ? item.bggId.toString() : ''))
     .filter(bggId => bggId.length > 0)
 
-  getImageURLs(missedImageIds).then(images => {
+  const deferredImageURLs = getImageURLs(missedImageIds).then(images => {
     if (images) {
-      Object.entries(images).forEach(([id, url]) => {
-        preloadedImageURLs[id] = url
-      })
+      return Object.entries(images).reduce((images, [id, url]) => {
+        return {
+          ...images,
+          [id]: url,
+        }
+      }, {})
     }
+    return []
   })
 
   if (missedImageIds.length > 0) {
@@ -118,7 +116,7 @@ export function getGameImages(items: Array<GameObject>): Array<GameObject> {
           ...item,
           imageLoader: addImageLoader(item, async () => {
             if (item.bggId) {
-              return await getImageURL(item.bggId.toString(), preloadedImageURLs)
+              return await getImageURL(item.bggId.toString(), deferredImageURLs)
             }
 
             return null
