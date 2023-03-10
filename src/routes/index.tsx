@@ -286,7 +286,7 @@ export default function (): JSX.Element {
                                   class="flex flex-row items-center text-sm text-gray-100"
                                 >
                                   BGG
-                                  <span class="mx-1 h-4 w-4 fill-none stroke-current stroke-1">
+                                  <span class="mx-1 h-4 w-4 fill-none stroke-current stroke-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                       <path
                                         stroke-linecap="round"
