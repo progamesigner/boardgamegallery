@@ -21,6 +21,7 @@ export default function Root() {
         <Title>Board Game Gallery</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta name="description" content="Board Game Gallery" />
         <Link rel="apple-touch-icon" type="image/png" href="/apple-touch-icon.png" />
         <Link rel="icon" type="image/png" href="/favicon.png" />
       </Head>

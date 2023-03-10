@@ -1,7 +1,7 @@
 import type { JSX } from 'solid-js'
 
 import { Portal } from 'solid-js/web'
-import { Title, useLocation } from 'solid-start'
+import { Meta, Title, useLocation } from 'solid-start'
 
 import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
 
@@ -61,6 +61,7 @@ export function Header(): JSX.Element {
   return (
     <>
       <Title>桌遊清單</Title>
+      <Meta name="description" content="桌遊清單展示頁面" />
 
       <div class="flex py-8 px-2">
         <div class="mr-auto">
