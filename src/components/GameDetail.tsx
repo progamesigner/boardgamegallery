@@ -20,27 +20,22 @@ interface RangePanelProps {
 
 function RangePanel(props: RangePanelProps): JSX.Element {
   return (
-    <div>
-      <Show
-        when={props.maximum > 0 || props.minimum > 0}
-        fallback={<span>{props.fallback()}</span>}
-      >
-        <Switch>
-          <Match when={props.maximum > props.minimum}>
-            <span>{props.format(`${props.minimum} ~ ${props.maximum}`)}</span>
-          </Match>
-          <Match when={props.maximum <= props.minimum}>
-            <span>{props.format(`${props.minimum}`)}</span>
-          </Match>
-          <Match when={props.maximum > 0}>
-            <span>{props.format(`${props.maximum}`)}</span>
-          </Match>
-          <Match when={props.minimum > 0}>
-            <span>{props.format(`${props.minimum}`)}</span>
-          </Match>
-        </Switch>
-      </Show>
-    </div>
+    <Show when={props.maximum > 0 || props.minimum > 0} fallback={<span>{props.fallback()}</span>}>
+      <Switch>
+        <Match when={props.maximum <= 0}>
+          <span>{props.format(`${props.minimum}`)}</span>
+        </Match>
+        <Match when={props.minimum <= 0}>
+          <span>{props.format(`${props.maximum}`)}</span>
+        </Match>
+        <Match when={props.maximum > props.minimum}>
+          <span>{props.format(`${props.minimum} ~ ${props.maximum}`)}</span>
+        </Match>
+        <Match when={props.maximum <= props.minimum}>
+          <span>{props.format(`${props.minimum}`)}</span>
+        </Match>
+      </Switch>
+    </Show>
   )
 }
 
@@ -59,20 +54,24 @@ export function GameDetail(props: Props): JSX.Element {
             <GameImage item={props.item} />
           </figure>
         </div>
-        <div class="flex flex-col">
-          <div>
-            <Tags>
-              <Index each={props.item.types}>{type => <Tag>{type()}</Tag>}</Index>
-            </Tags>
+        <div class="flex grow flex-col">
+          <Tags>
+            <Index each={props.item.types}>{type => <Tag>{type()}</Tag>}</Index>
+          </Tags>
+          <span class="mt-2">玩家人數</span>
+          <div class="text-gray-300 text-sm px-2">
             <RangePanel
-              fallback={() => '玩家人數: 未知'}
-              format={range => `玩家人數: ${range} 人`}
+              fallback={() => '未知'}
+              format={range => `${range} 人`}
               minimum={props.item.minimalPlayers}
               maximum={props.item.maximalPlayers}
             />
+          </div>
+          <span class="mt-2">遊戲時間</span>
+          <div class="text-gray-300 text-sm px-2">
             <RangePanel
-              fallback={() => '遊戲時間: 未知'}
-              format={range => `遊戲時間: ${range} 分鐘`}
+              fallback={() => '未知'}
+              format={range => `${range} 分鐘`}
               minimum={props.item.minimalMinutes}
               maximum={props.item.maximalMinutes}
             />
