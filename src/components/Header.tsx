@@ -69,7 +69,7 @@ export function Header(): JSX.Element {
         <div class="flex gap-2">
           <ModalTrigger id="modal-qecode">
             <span class="block w-12 cursor-pointer fill-none stroke-current stroke-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -87,7 +87,7 @@ export function Header(): JSX.Element {
             class="w-12 fill-none stroke-current stroke-2"
             href="https://github.com/progamesigner/boardgamegallery"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"

@@ -28,7 +28,7 @@ export function ModalClose(props: Props): JSX.Element {
         for={props.id}
         class="btn-circle btn flex cursor-pointer items-center justify-center rounded-full fill-none stroke-current stroke-2 p-2 text-gray-100 hover:bg-gray-700"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
