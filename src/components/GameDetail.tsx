@@ -22,7 +22,7 @@ function RangePanel(props: RangePanelProps): JSX.Element {
   return (
     <div>
       <Show
-        when={props.maximum > 0 && props.minimum > 0}
+        when={props.maximum > 0 || props.minimum > 0}
         fallback={<span>{props.fallback()}</span>}
       >
         <Switch>
@@ -30,6 +30,12 @@ function RangePanel(props: RangePanelProps): JSX.Element {
             <span>{props.format(`${props.minimum} ~ ${props.maximum}`)}</span>
           </Match>
           <Match when={props.maximum <= props.minimum}>
+            <span>{props.format(`${props.minimum}`)}</span>
+          </Match>
+          <Match when={props.maximum > 0}>
+            <span>{props.format(`${props.maximum}`)}</span>
+          </Match>
+          <Match when={props.minimum > 0}>
             <span>{props.format(`${props.minimum}`)}</span>
           </Match>
         </Switch>
