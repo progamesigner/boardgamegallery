@@ -58,7 +58,7 @@ async function getImageURLs(ids: Array<string>): Promise<Record<string, string |
     }
 
     saveToCache(
-      Array.from(document.querySelectorAll('item[type="boardgame"]')).reduce((items, item) => {
+      Array.from(document.querySelectorAll('item')).reduce((items, item) => {
         const id = item.getAttribute('id')
         if (id) {
           return {
@@ -90,7 +90,9 @@ async function getImageURL(
 ): Promise<string | null> {
   const bggId = item.bggId
   if (bggId) {
-    return deferredImageURLs.then(images => images[bggId.toString()] ?? null).catch(() => null)
+    return deferredImageURLs.then(images => {
+      return images[bggId.toString()] ?? null
+    }).catch(() => null)
   }
   return null
 }
