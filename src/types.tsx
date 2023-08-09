@@ -1,3 +1,5 @@
+export type GameImageLoader = () => Promise<string | null> | string | null
+
 export interface GameData {
   id: string
   bggId: number | null
@@ -15,5 +17,5 @@ export interface GameData {
 }
 
 export interface GameObject extends GameData {
-  imageLoader?: () => Promise<string | null> | string | null
+  imageLoader?: GameImageLoader
 }

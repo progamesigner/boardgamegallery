@@ -2,7 +2,7 @@ import type { APIResponse as ImageResponse } from '~/routes/notion/v1/blocks/[id
 import type { APIResponse as QueryResponse } from '~/routes/notion/v1/databases/[id]/query/games'
 import type { GameObject } from '~/types'
 
-import { addImageLoader } from '.'
+import { chainImageLoader } from '.'
 import { getGameImages } from './boardgamegeek'
 
 interface State {
@@ -10,7 +10,8 @@ interface State {
   items: Array<GameObject>
 }
 
-async function getContentImge(blockId: string): Promise<ImageResponse> {
+async function getContentImge(item: GameObject): Promise<ImageResponse> {
+  const blockId = item.id
   const response = await fetch(`/notion/v1/blocks/${blockId}/children/image`)
   if (!response.ok) {
     throw new Error('Failed to fetch game cover')
@@ -41,7 +42,7 @@ export default async function (databaseId: string): Promise<Array<GameObject>> {
     const items = query.data.map(item => {
       return {
         ...item,
-        imageLoader: addImageLoader(item, async () => await getContentImge(item.id)),
+        imageLoader: chainImageLoader(item, getContentImge.bind(null, item)),
       }
     })
 

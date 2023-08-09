@@ -2,7 +2,7 @@ import type { GameObject } from '~/types'
 
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
 
-import { addImageLoader } from '.'
+import { chainImageLoader } from '.'
 
 const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`
 
@@ -85,10 +85,14 @@ async function getImageURLs(ids: Array<string>): Promise<Record<string, string |
 }
 
 async function getImageURL(
-  id: string,
-  deferredImageURLs: Promise<Record<string, string | null>>
+  deferredImageURLs: Promise<Record<string, string | null>>,
+  item: GameObject
 ): Promise<string | null> {
-  return deferredImageURLs.then(images => images[id] ?? null).catch(() => null)
+  const bggId = item.bggId
+  if (bggId) {
+    return deferredImageURLs.then(images => images[bggId.toString()] ?? null).catch(() => null)
+  }
+  return null
 }
 
 export function getGameImages(items: Array<GameObject>): Array<GameObject> {
@@ -114,13 +118,7 @@ export function getGameImages(items: Array<GameObject>): Array<GameObject> {
       if (!item.image) {
         return {
           ...item,
-          imageLoader: addImageLoader(item, async () => {
-            if (item.bggId) {
-              return await getImageURL(item.bggId.toString(), deferredImageURLs)
-            }
-
-            return null
-          }),
+          imageLoader: chainImageLoader(item, getImageURL.bind(null, deferredImageURLs, item), true),
         }
       }
       return item

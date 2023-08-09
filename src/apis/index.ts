@@ -1,4 +1,4 @@
-import type { GameObject } from '~/types'
+import type { GameImageLoader, GameObject } from '~/types'
 
 import { default as fetchGoogleSheetStore } from './googlesheet'
 import { default as fetchJSONStore } from './json'
@@ -10,23 +10,29 @@ const enum Store {
   NOTION = 'notion',
 }
 
-export function addImageLoader(
-  item: GameObject,
-  next: () => Promise<string | null>
-): () => Promise<string | null> {
-  if (item.imageLoader) {
-    const previousLoader = item.imageLoader
-    return async function (): Promise<string | null> {
-      const previousValue = await Promise.resolve(previousLoader())
-      if (previousValue) {
-        return previousValue
-      }
-
-      return await next()
+function makeLoaderChain(first: GameImageLoader, last: GameImageLoader): GameImageLoader {
+  return async () => {
+    const firstValue = await Promise.resolve(first())
+    if (firstValue) {
+      return firstValue
     }
+    return await Promise.resolve(last())
   }
+}
 
-  return next
+export function chainImageLoader(
+  item: GameObject,
+  loader: GameImageLoader,
+  prepend = false
+): GameImageLoader {
+  if (item.imageLoader) {
+    const imageLoader = item.imageLoader
+    if (prepend) {
+      return makeLoaderChain(loader, imageLoader)
+    }
+    return makeLoaderChain(imageLoader, loader)
+  }
+  return loader
 }
 
 export async function fetchGames(source: string): Promise<Array<GameObject>> {
