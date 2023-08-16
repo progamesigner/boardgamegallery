@@ -22,6 +22,7 @@ const enum Field {
   MINIMAL_MINUTES = '[BGG]: MIN-MINUTES',
   MAXIMAL_MINUTES = '[BGG]: MAX-MINUTES',
   TAGS = '[BGG]: TAGS',
+  ORDER = '[BGG]: ORDER',
 }
 
 interface NotionGamePayload {
@@ -38,6 +39,7 @@ interface NotionGamePayload {
   [Field.MINIMAL_MINUTES]?: number
   [Field.MAXIMAL_MINUTES]?: number
   [Field.TAGS]?: Array<string>
+  [Field.ORDER]?: number
 }
 
 type NotionProperty = PageObjectResponse['properties'][keyof PageObjectResponse['properties']]
@@ -383,6 +385,11 @@ async function handle(databaseId: string, cursor?: string): Promise<APIResponse>
                 ...fields,
                 [Field.TAGS]: extractArrayProperty(property),
               }
+            case Field.ORDER:
+              return {
+                ...fields,
+                [Field.ORDER]: extractNumberProperty(property),
+              }
             default:
               return fields
           }
@@ -405,6 +412,7 @@ async function handle(databaseId: string, cursor?: string): Promise<APIResponse>
           minimalMinutes: game[Field.MINIMAL_MINUTES] ?? 0,
           maximalMinutes: game[Field.MAXIMAL_MINUTES] ?? 0,
           tags: game[Field.TAGS] ?? [],
+          order: game[Field.ORDER] ?? 0,
         })
       }
     }

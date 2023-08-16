@@ -27,6 +27,7 @@ export default async function (url: URL | string): Promise<Array<GameObject>> {
       !Number.isInteger(item.maximalPlayers) ||
       !Number.isInteger(item.minimalMinutes) ||
       !Number.isInteger(item.maximalMinutes) ||
+      !Number.isInteger(item.order) ||
       !(item.tags instanceof Array)
   )
   if (invalidGames.length > 0) {

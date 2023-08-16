@@ -18,6 +18,7 @@ const enum Field {
   MINIMAL_MINUTES = 'MINMINUTES',
   MAXIMAL_MINUTES = 'MAXMINUTES',
   TAGS = 'TAGS',
+  ORDER = 'ORDER',
 
   IMGUR = 'IMGUR',
   GAMETYPE = 'GAMETYPE',
@@ -40,6 +41,7 @@ interface SheetGamePayload {
   [Field.MINIMAL_MINUTES]?: number
   [Field.MAXIMAL_MINUTES]?: number
   [Field.TAGS]?: Array<string>
+  [Field.ORDER]?: number
   [Field.IMGUR]?: string
   [Field.GAMETYPE]?: Array<string>
   [Field.PLAYER]?: Array<number>
@@ -97,6 +99,7 @@ export default async function (sheetId: string): Promise<Array<GameObject>> {
         case Field.MAXIMAL_PLAYERS:
         case Field.MINIMAL_MINUTES:
         case Field.MAXIMAL_MINUTES:
+        case Field.ORDER:
           return parseInt(field)
         case Field.ID:
         case Field.NAME:
@@ -147,6 +150,7 @@ export default async function (sheetId: string): Promise<Array<GameObject>> {
       minimalMinutes: minimalMinutes,
       maximalMinutes: maximalMinutes,
       tags: [...(item[Field.TAGS] ?? []), ...(item[Field.TAG] ?? [])],
+      order: item[Field.ORDER] ?? 0,
     }
   })
 

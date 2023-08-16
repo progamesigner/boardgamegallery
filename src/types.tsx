@@ -14,6 +14,7 @@ export interface GameData {
   minimalMinutes: number
   maximalMinutes: number
   tags: Array<string>
+  order: number
 }
 
 export interface GameObject extends GameData {

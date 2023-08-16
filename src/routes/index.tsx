@@ -91,6 +91,14 @@ function processTags(games: Array<GameObject>): Array<Filter<string>> {
   return Array.from(tags).map(value => ({ filter: value, value: value }))
 }
 
+export function sortGames(games: Array<GameObject>): Array<GameObject> {
+  return [...games].sort((first, second) => {
+    return first.order !== second.order
+      ? first.order - second.order
+      : first.name.localeCompare(second.name)
+  })
+}
+
 export default function (): JSX.Element {
   const [searchParams] = useSearchParams()
 
@@ -178,7 +186,7 @@ export default function (): JSX.Element {
     if (source) {
       try {
         const games = await fetchGames(source)
-        setFullGames(games)
+        setFullGames(sortGames(games))
         setTags(processTags(games))
         setError(false)
       } catch (error) {
@@ -287,7 +295,11 @@ export default function (): JSX.Element {
                                 >
                                   BGG
                                   <span class="mx-1 h-4 w-4 fill-none stroke-current stroke-2">
-                                    <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <svg
+                                      class="h-full w-full"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 24 24"
+                                    >
                                       <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"

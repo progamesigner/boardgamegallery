@@ -45,7 +45,8 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
       "maximalMinutes": "number",
       "tags": [
         "string"
-      ]
+      ],
+      "order": 0
     },
   ],
 }
@@ -78,6 +79,7 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
  - `[BGG]: MIN-MINUTES`: 最少遊戲時間 (分鐘)
  - `[BGG]: MAX-MINUTES`: 最多遊戲時間 (分鐘)
  - `[BGG]: TAGS`: 遊戲標籤，多個可以用半形逗號、全形頓號或空格分隔
+ - `[BGG]: ORDER`: 遊戲排序，預設由小至大排序
 
 ### GoogleSheet
 
@@ -101,6 +103,7 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
  - `MINMINUTES`: 最少遊戲時間 (分鐘)
  - `MAXMINUTES`: 最多遊戲時間 (分鐘)
  - `TAGS`: 遊戲標籤，多個可以用全形頓號或空格分隔
+ - `ORDER`: 遊戲排序，預設由小至大排序
 
 另外一些其他的欄位也可以使用，這是為了和現有的其他桌遊清單格式相容：
  - `IMGUR`: 與 `IMAGE` 相同，如果和 `IMAGE` 一起設定的話 `IMAGE` 優先
