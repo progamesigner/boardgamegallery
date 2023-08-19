@@ -186,14 +186,14 @@ export default function (): JSX.Element {
         <div class="container mx-auto">
           <Header />
           <div class="flex flex-col gap-2 px-4">
-            <Switch>
-              <Match when={getLoading()}>
-                <Tag>
-                  <Loading iconOnly={true} />
-                </Tag>
-              </Match>
-              <Match when={true}>
-                <Tags>
+            <Tags>
+              <Switch>
+                <Match when={getLoading()}>
+                  <Tag>
+                    <Loading iconOnly={true} />
+                  </Tag>
+                </Match>
+                <Match when={true}>
                   <Index each={getPlayers()}>
                     {player => (
                       <Tag
@@ -204,17 +204,17 @@ export default function (): JSX.Element {
                       </Tag>
                     )}
                   </Index>
-                </Tags>
-              </Match>
-            </Switch>
-            <Switch>
-              <Match when={getLoading()}>
-                <Tag>
-                  <Loading iconOnly={true} />
-                </Tag>
-              </Match>
-              <Match when={true}>
-                <Tags>
+                </Match>
+              </Switch>
+            </Tags>
+            <Tags>
+              <Switch>
+                <Match when={getLoading()}>
+                  <Tag>
+                    <Loading iconOnly={true} />
+                  </Tag>
+                </Match>
+                <Match when={true}>
                   <Index each={getTimes()}>
                     {time => (
                       <Tag
@@ -225,17 +225,17 @@ export default function (): JSX.Element {
                       </Tag>
                     )}
                   </Index>
-                </Tags>
-              </Match>
-            </Switch>
-            <Switch>
-              <Match when={getLoading()}>
-                <Tag>
-                  <Loading iconOnly={true} />
-                </Tag>
-              </Match>
-              <Match when={true}>
-                <Tags>
+                </Match>
+              </Switch>
+            </Tags>
+            <Tags>
+              <Switch>
+                <Match when={getLoading()}>
+                  <Tag>
+                    <Loading iconOnly={true} />
+                  </Tag>
+                </Match>
+                <Match when={true}>
                   <Show when={getTags().length > 0}>
                     <Index each={getTags()}>
                       {tag => (
@@ -248,9 +248,9 @@ export default function (): JSX.Element {
                       )}
                     </Index>
                   </Show>
-                </Tags>
-              </Match>
-            </Switch>
+                </Match>
+              </Switch>
+            </Tags>
           </div>
         </div>
       </header>

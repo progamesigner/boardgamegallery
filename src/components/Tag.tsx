@@ -41,7 +41,7 @@ export function Tag(props: Props): JSX.Element {
           <Switch>
             <Match when={props.color === TagColor.AMBER}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-amber-500': props.active, 'bg-amber-700': !props.active }}
               >
                 {props.children}
@@ -49,7 +49,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.BLUE}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-blue-500': props.active, 'bg-blue-700': !props.active }}
               >
                 {props.children}
@@ -57,7 +57,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.CYAN}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-cyan-500': props.active, 'bg-cyan-700': !props.active }}
               >
                 {props.children}
@@ -65,7 +65,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.GREEN}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-green-500': props.active, 'bg-green-700': !props.active }}
               >
                 {props.children}
@@ -73,7 +73,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.INDIGO}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-indigo-500': props.active, 'bg-indigo-700': !props.active }}
               >
                 {props.children}
@@ -81,7 +81,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.ORANGE}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-orange-500': props.active, 'bg-orange-700': !props.active }}
               >
                 {props.children}
@@ -89,7 +89,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.PINK}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-pink-500': props.active, 'bg-pink-700': !props.active }}
               >
                 {props.children}
@@ -97,7 +97,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.PURPLE}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-purple-500': props.active, 'bg-purple-700': !props.active }}
               >
                 {props.children}
@@ -105,7 +105,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.RED}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-red-500': props.active, 'bg-red-700': !props.active }}
               >
                 {props.children}
@@ -113,7 +113,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.TEAL}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-teal-500': props.active, 'bg-teal-700': !props.active }}
               >
                 {props.children}
@@ -121,7 +121,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={props.color === TagColor.YELLOW}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-yellow-500': props.active, 'bg-yellow-700': !props.active }}
               >
                 {props.children}
@@ -129,7 +129,7 @@ export function Tag(props: Props): JSX.Element {
             </Match>
             <Match when={true}>
               <span
-                class="badge rounded py-2"
+                class="badge rounded py-2 h-6"
                 classList={{ 'bg-gray-500': props.active, 'bg-gray-700': !props.active }}
               >
                 {props.children}
@@ -141,40 +141,40 @@ export function Tag(props: Props): JSX.Element {
       <Match when={true}>
         <Switch>
           <Match when={props.color === TagColor.AMBER}>
-            <span class="badge rounded bg-amber-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-amber-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.BLUE}>
-            <span class="badge rounded bg-blue-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-blue-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.CYAN}>
-            <span class="badge rounded bg-cyan-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-cyan-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.GREEN}>
-            <span class="badge rounded bg-green-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-green-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.INDIGO}>
-            <span class="badge rounded bg-indigo-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-indigo-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.ORANGE}>
-            <span class="badge rounded bg-orange-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-orange-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.PINK}>
-            <span class="badge rounded bg-pink-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-pink-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.PURPLE}>
-            <span class="badge rounded bg-purple-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-purple-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.RED}>
-            <span class="badge rounded bg-red-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-red-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.TEAL}>
-            <span class="badge rounded bg-teal-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-teal-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={props.color === TagColor.YELLOW}>
-            <span class="badge rounded bg-yellow-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-yellow-700 py-2 h-6">{props.children}</span>
           </Match>
           <Match when={true}>
-            <span class="badge rounded bg-gray-700 py-2">{props.children}</span>
+            <span class="badge rounded bg-gray-700 py-2 h-6">{props.children}</span>
           </Match>
         </Switch>
       </Match>
