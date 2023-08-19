@@ -18,21 +18,6 @@ import { Tag, Tags } from '~/components/Tag'
 
 import { fetchGames } from '~/apis'
 
-enum PlayerFilter {
-  SUPPORT_2 = 2,
-  SUPPORT_3 = 3,
-  SUPPORT_4 = 4,
-  SUPPORT_5 = 5,
-  SUPPORT_6 = 6,
-  SUPPORT_7 = 7,
-  SUPPORT_8 = 8,
-  SUPPORT_9 = 9,
-  SUPPORT_10 = 10,
-  SUPPORT_11 = 11,
-  SUPPORT_12 = 12,
-  SUPPORT_MORE_THAN_12 = 13,
-}
-
 enum TimeFilter {
   SUPPORT_LESS_THAN_15 = 14,
   SUPPORT_15 = 15,
@@ -45,42 +30,41 @@ enum TimeFilter {
   SUPPORT_MORE_THAN_150 = 151,
 }
 
-type Filters = PlayerFilter | TimeFilter | string
+type Filters = TimeFilter | number | string
 
 interface Filter<T> {
-  filter: T
-  value: string
-}
-
-function defaultPlayers(): Array<Filter<PlayerFilter>> {
-  return [
-    { filter: PlayerFilter.SUPPORT_2, value: '2 人' },
-    { filter: PlayerFilter.SUPPORT_3, value: '3 人' },
-    { filter: PlayerFilter.SUPPORT_4, value: '4 人' },
-    { filter: PlayerFilter.SUPPORT_5, value: '5 人' },
-    { filter: PlayerFilter.SUPPORT_6, value: '6 人' },
-    { filter: PlayerFilter.SUPPORT_7, value: '7 人' },
-    { filter: PlayerFilter.SUPPORT_8, value: '8 人' },
-    { filter: PlayerFilter.SUPPORT_9, value: '9 人' },
-    { filter: PlayerFilter.SUPPORT_10, value: '10 人' },
-    { filter: PlayerFilter.SUPPORT_11, value: '11 人' },
-    { filter: PlayerFilter.SUPPORT_12, value: '12 人' },
-    { filter: PlayerFilter.SUPPORT_MORE_THAN_12, value: '12 人以上' },
-  ]
+  value: T
+  label: string
 }
 
 function defaultTimes(): Array<Filter<TimeFilter>> {
   return [
-    { filter: TimeFilter.SUPPORT_LESS_THAN_15, value: '15 分鐘以內' },
-    { filter: TimeFilter.SUPPORT_15, value: '15 分鐘' },
-    { filter: TimeFilter.SUPPORT_30, value: '30 分鐘' },
-    { filter: TimeFilter.SUPPORT_45, value: '45 分鐘' },
-    { filter: TimeFilter.SUPPORT_60, value: '60 分鐘' },
-    { filter: TimeFilter.SUPPORT_90, value: '90 分鐘' },
-    { filter: TimeFilter.SUPPORT_120, value: '120 分鐘' },
-    { filter: TimeFilter.SUPPORT_150, value: '150 分鐘' },
-    { filter: TimeFilter.SUPPORT_MORE_THAN_150, value: '150 分鐘以上' },
+    { value: TimeFilter.SUPPORT_LESS_THAN_15, label: '15 分鐘以內' },
+    { value: TimeFilter.SUPPORT_15, label: '15 分鐘' },
+    { value: TimeFilter.SUPPORT_30, label: '30 分鐘' },
+    { value: TimeFilter.SUPPORT_45, label: '45 分鐘' },
+    { value: TimeFilter.SUPPORT_60, label: '60 分鐘' },
+    { value: TimeFilter.SUPPORT_90, label: '90 分鐘' },
+    { value: TimeFilter.SUPPORT_120, label: '120 分鐘' },
+    { value: TimeFilter.SUPPORT_150, label: '150 分鐘' },
+    { value: TimeFilter.SUPPORT_MORE_THAN_150, label: '150 分鐘以上' },
   ]
+}
+
+function processPlayers(games: Array<GameObject>): Array<Filter<number>> {
+  const players = games.reduce(
+    (players, game) => [...players, game.minimalPlayers, game.maximalPlayers],
+    [] as Array<number>
+  )
+  const minimalPlayers = Math.max(1, Math.min(...players))
+  const maximalPlayers = Math.min(12, Math.max(...players))
+  return Array(maximalPlayers - minimalPlayers)
+    .fill(minimalPlayers)
+    .map((basePlayer, value) => ({
+      label: `${basePlayer + value}人`,
+      value: basePlayer + value,
+    }))
+    .concat({ label: `${maximalPlayers}人以上`, value: maximalPlayers })
 }
 
 function processTags(games: Array<GameObject>): Array<Filter<string>> {
@@ -88,7 +72,7 @@ function processTags(games: Array<GameObject>): Array<Filter<string>> {
   games.forEach(game => {
     Array.prototype.concat([], game.types, game.tags).forEach(tag => tags.add(tag))
   })
-  return Array.from(tags).map(value => ({ filter: value, value: value }))
+  return Array.from(tags).map(value => ({ label: value, value: value }))
 }
 
 export function sortGames(games: Array<GameObject>): Array<GameObject> {
@@ -112,14 +96,12 @@ export default function (): JSX.Element {
   const [getFullGames, setFullGames] = createSignal<Array<GameObject>>([])
 
   const [getTimes] = createSignal<Array<Filter<TimeFilter>>>(defaultTimes())
-  const [getPlayers] = createSignal<Array<Filter<PlayerFilter>>>(defaultPlayers())
+  const [getPlayers, setPlayers] = createSignal<Array<Filter<number>>>([])
   const [getTags, setTags] = createSignal<Array<Filter<string>>>([])
 
-  const [getPlayerFilters, setPlayerFilters] = createSignal<Set<PlayerFilter>>(
-    new Set<PlayerFilter>()
-  )
-  const [getTimeFilters, setTimeFilters] = createSignal<Set<TimeFilter>>(new Set<TimeFilter>())
-  const [getTagFilters, setTagFilters] = createSignal<Set<string>>(new Set<string>())
+  const [getPlayerFilters, setPlayerFilters] = createSignal<Set<number>>(new Set())
+  const [getTimeFilters, setTimeFilters] = createSignal<Set<TimeFilter>>(new Set())
+  const [getTagFilters, setTagFilters] = createSignal<Set<string>>(new Set())
 
   const getGames = createMemo(() => {
     const games = getFullGames()
@@ -128,13 +110,15 @@ export default function (): JSX.Element {
     const activeTimeFilters = Array.from(getTimeFilters())
     const activeTagFilters = Array.from(getTagFilters())
 
+    const maximalPlayers = Math.max(...getPlayers().map(filter => filter.value))
+
     return games
       .filter(
         activePlayerFilters.length > 0
           ? game =>
               activePlayerFilters.filter(value => {
                 switch (value) {
-                  case PlayerFilter.SUPPORT_MORE_THAN_12:
+                  case maximalPlayers:
                     return game.maximalPlayers >= value
                   default:
                     return game.minimalPlayers <= value && value <= game.maximalPlayers
@@ -187,6 +171,7 @@ export default function (): JSX.Element {
       try {
         const games = await fetchGames(source)
         setFullGames(sortGames(games))
+        setPlayers(processPlayers(games))
         setTags(processTags(games))
         setError(false)
       } catch (error) {
@@ -203,26 +188,35 @@ export default function (): JSX.Element {
         <div class="container mx-auto">
           <Header />
           <div class="flex flex-col gap-2 px-4">
-            <Tags>
-              <Index each={getPlayers()}>
-                {player => (
-                  <Tag
-                    active={getPlayerFilters().has(player().filter)}
-                    onChange={toggleFilter(setPlayerFilters, player().filter)}
-                  >
-                    {player().value}
-                  </Tag>
-                )}
-              </Index>
-            </Tags>
+            <Switch>
+              <Match when={getLoading()}>
+                <Tag>
+                  <Loading iconOnly={true} />
+                </Tag>
+              </Match>
+              <Match when={true}>
+                <Tags>
+                  <Index each={getPlayers()}>
+                    {player => (
+                      <Tag
+                        active={getPlayerFilters().has(player().value)}
+                        onChange={toggleFilter(setPlayerFilters, player().value)}
+                      >
+                        {player().label}
+                      </Tag>
+                    )}
+                  </Index>
+                </Tags>
+              </Match>
+            </Switch>
             <Tags>
               <Index each={getTimes()}>
                 {time => (
                   <Tag
-                    active={getTimeFilters().has(time().filter)}
-                    onChange={toggleFilter(setTimeFilters, time().filter)}
+                    active={getTimeFilters().has(time().value)}
+                    onChange={toggleFilter(setTimeFilters, time().value)}
                   >
-                    {time().value}
+                    {time().label}
                   </Tag>
                 )}
               </Index>
@@ -239,10 +233,10 @@ export default function (): JSX.Element {
                     <Index each={getTags()}>
                       {tag => (
                         <Tag
-                          active={getTagFilters().has(tag().filter)}
-                          onChange={toggleFilter(setTagFilters, tag().filter)}
+                          active={getTagFilters().has(tag().value)}
+                          onChange={toggleFilter(setTagFilters, tag().value)}
                         >
-                          {tag().value}
+                          {tag().label}
                         </Tag>
                       )}
                     </Index>
