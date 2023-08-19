@@ -18,37 +18,11 @@ import { Tag, Tags } from '~/components/Tag'
 
 import { fetchGames } from '~/apis'
 
-enum TimeFilter {
-  SUPPORT_LESS_THAN_15 = 14,
-  SUPPORT_15 = 15,
-  SUPPORT_30 = 30,
-  SUPPORT_45 = 45,
-  SUPPORT_60 = 60,
-  SUPPORT_90 = 90,
-  SUPPORT_120 = 120,
-  SUPPORT_150 = 150,
-  SUPPORT_MORE_THAN_150 = 151,
-}
-
-type Filters = TimeFilter | number | string
+type Filters = number | string
 
 interface Filter<T> {
   value: T
   label: string
-}
-
-function defaultTimes(): Array<Filter<TimeFilter>> {
-  return [
-    { value: TimeFilter.SUPPORT_LESS_THAN_15, label: '15 分鐘以內' },
-    { value: TimeFilter.SUPPORT_15, label: '15 分鐘' },
-    { value: TimeFilter.SUPPORT_30, label: '30 分鐘' },
-    { value: TimeFilter.SUPPORT_45, label: '45 分鐘' },
-    { value: TimeFilter.SUPPORT_60, label: '60 分鐘' },
-    { value: TimeFilter.SUPPORT_90, label: '90 分鐘' },
-    { value: TimeFilter.SUPPORT_120, label: '120 分鐘' },
-    { value: TimeFilter.SUPPORT_150, label: '150 分鐘' },
-    { value: TimeFilter.SUPPORT_MORE_THAN_150, label: '150 分鐘以上' },
-  ]
 }
 
 function processPlayers(games: Array<GameObject>): Array<Filter<number>> {
@@ -58,13 +32,15 @@ function processPlayers(games: Array<GameObject>): Array<Filter<number>> {
   )
   const minimalPlayers = Math.max(1, Math.min(...players))
   const maximalPlayers = Math.min(12, Math.max(...players))
-  return Array(maximalPlayers - minimalPlayers)
-    .fill(minimalPlayers)
-    .map((basePlayer, value) => ({
-      label: `${basePlayer + value}人`,
-      value: basePlayer + value,
-    }))
-    .concat({ label: `${maximalPlayers}人以上`, value: maximalPlayers })
+  return [
+    ...Array(maximalPlayers - minimalPlayers)
+      .fill(minimalPlayers)
+      .map((basePlayer, value) => ({
+        label: `${basePlayer + value}人`,
+        value: basePlayer + value,
+      })),
+    { label: `${maximalPlayers}人以上`, value: maximalPlayers },
+  ]
 }
 
 function processTags(games: Array<GameObject>): Array<Filter<string>> {
@@ -73,6 +49,25 @@ function processTags(games: Array<GameObject>): Array<Filter<string>> {
     Array.prototype.concat([], game.types, game.tags).forEach(tag => tags.add(tag))
   })
   return Array.from(tags).map(value => ({ label: value, value: value }))
+}
+
+function processTimes(games: Array<GameObject>): Array<Filter<number>> {
+  const times = games.reduce(
+    (players, game) => [...players, game.minimalMinutes, game.maximalMinutes],
+    [] as Array<number>
+  )
+  const minimalTimes = Math.max(15, Math.min(...times))
+  const maximalTimes = Math.min(150, Math.max(...times))
+  return [
+    { label: `${minimalTimes} 分鐘以內`, value: minimalTimes - 1 },
+    ...Array(Math.floor((maximalTimes - minimalTimes) / 15) + 1)
+      .fill(minimalTimes)
+      .map((baseTimes, value) => ({
+        label: `${baseTimes + value * 15} 分鐘`,
+        value: baseTimes + value * 15,
+      })),
+    { label: `${maximalTimes} 分鐘以上`, value: maximalTimes + 1 },
+  ]
 }
 
 export function sortGames(games: Array<GameObject>): Array<GameObject> {
@@ -95,12 +90,12 @@ export default function (): JSX.Element {
 
   const [getFullGames, setFullGames] = createSignal<Array<GameObject>>([])
 
-  const [getTimes] = createSignal<Array<Filter<TimeFilter>>>(defaultTimes())
+  const [getTimes, setTimes] = createSignal<Array<Filter<number>>>([])
   const [getPlayers, setPlayers] = createSignal<Array<Filter<number>>>([])
   const [getTags, setTags] = createSignal<Array<Filter<string>>>([])
 
   const [getPlayerFilters, setPlayerFilters] = createSignal<Set<number>>(new Set())
-  const [getTimeFilters, setTimeFilters] = createSignal<Set<TimeFilter>>(new Set())
+  const [getTimeFilters, setTimeFilters] = createSignal<Set<number>>(new Set())
   const [getTagFilters, setTagFilters] = createSignal<Set<string>>(new Set())
 
   const getGames = createMemo(() => {
@@ -111,6 +106,8 @@ export default function (): JSX.Element {
     const activeTagFilters = Array.from(getTagFilters())
 
     const maximalPlayers = Math.max(...getPlayers().map(filter => filter.value))
+    const maximalTimes = Math.max(...getTimes().map(filter => filter.value))
+    const minimalTimes = Math.min(...getTimes().map(filter => filter.value))
 
     return games
       .filter(
@@ -131,9 +128,9 @@ export default function (): JSX.Element {
           ? game =>
               activeTimeFilters.filter(value => {
                 switch (value) {
-                  case TimeFilter.SUPPORT_LESS_THAN_15:
+                  case minimalTimes:
                     return game.minimalMinutes <= value
-                  case TimeFilter.SUPPORT_MORE_THAN_150:
+                  case maximalTimes:
                     return game.maximalMinutes >= value
                   default:
                     return game.minimalMinutes <= value && value <= game.maximalMinutes
@@ -173,6 +170,7 @@ export default function (): JSX.Element {
         setFullGames(sortGames(games))
         setPlayers(processPlayers(games))
         setTags(processTags(games))
+        setTimes(processTimes(games))
         setError(false)
       } catch (error) {
         console.error(error)
@@ -209,18 +207,27 @@ export default function (): JSX.Element {
                 </Tags>
               </Match>
             </Switch>
-            <Tags>
-              <Index each={getTimes()}>
-                {time => (
-                  <Tag
-                    active={getTimeFilters().has(time().value)}
-                    onChange={toggleFilter(setTimeFilters, time().value)}
-                  >
-                    {time().label}
-                  </Tag>
-                )}
-              </Index>
-            </Tags>
+            <Switch>
+              <Match when={getLoading()}>
+                <Tag>
+                  <Loading iconOnly={true} />
+                </Tag>
+              </Match>
+              <Match when={true}>
+                <Tags>
+                  <Index each={getTimes()}>
+                    {time => (
+                      <Tag
+                        active={getTimeFilters().has(time().value)}
+                        onChange={toggleFilter(setTimeFilters, time().value)}
+                      >
+                        {time().label}
+                      </Tag>
+                    )}
+                  </Index>
+                </Tags>
+              </Match>
+            </Switch>
             <Switch>
               <Match when={getLoading()}>
                 <Tag>
