@@ -36,6 +36,6 @@
     "qrcode": "^1.5",
     "solid-js": "^1.6",
     "solid-start": "^0.2",
-    "undici": "^5.26"
+    "undici": "^5.28"
   }
 }
