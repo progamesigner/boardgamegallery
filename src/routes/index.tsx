@@ -8,11 +8,11 @@ import { useSearchParams } from 'solid-start'
 
 import { Footer } from '~/components/Footer'
 import { GameDetail } from '~/components/GameDetail'
+import { ImageCacheProvider } from '~/components/GameImage'
 import { GameItem } from '~/components/GameItem'
 import { Header } from '~/components/Header'
-import { ImageCacheProvider } from '~/components/GameImage'
 import { Loading } from '~/components/Loading'
-import { Message as Message } from '~/components/Message'
+import { Message } from '~/components/Message'
 import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
 import { Tag, Tags } from '~/components/Tag'
 
@@ -70,6 +70,11 @@ function processTimes(games: Array<GameObject>): Array<Filter<number>> {
   ]
 }
 
+function processLabels(games: Array<GameObject>): Array<Filter<string>> {
+  const labels = new Set<string>(games.map(game => game.label).filter(((label): label is string => label !== null)))
+  return Array.from(labels).map(value => ({ label: value, value: value }))
+}
+
 export function sortGames(games: Array<GameObject>): Array<GameObject> {
   return [...games].sort((first, second) => {
     return first.order !== second.order
@@ -90,20 +95,23 @@ export default function (): JSX.Element {
 
   const [getFullGames, setFullGames] = createSignal<Array<GameObject>>([])
 
-  const [getTimes, setTimes] = createSignal<Array<Filter<number>>>([])
+  const [getLabels, setLabels] = createSignal<Array<Filter<string>>>([])
   const [getPlayers, setPlayers] = createSignal<Array<Filter<number>>>([])
   const [getTags, setTags] = createSignal<Array<Filter<string>>>([])
+  const [getTimes, setTimes] = createSignal<Array<Filter<number>>>([])
 
+  const [getLabelFilters, setLabelFilters] = createSignal<Set<string>>(new Set())
   const [getPlayerFilters, setPlayerFilters] = createSignal<Set<number>>(new Set())
-  const [getTimeFilters, setTimeFilters] = createSignal<Set<number>>(new Set())
   const [getTagFilters, setTagFilters] = createSignal<Set<string>>(new Set())
+  const [getTimeFilters, setTimeFilters] = createSignal<Set<number>>(new Set())
 
   const getGames = createMemo(() => {
     const games = getFullGames()
 
+    const activeLabelFilters = Array.from(getLabelFilters())
     const activePlayerFilters = Array.from(getPlayerFilters())
-    const activeTimeFilters = Array.from(getTimeFilters())
     const activeTagFilters = Array.from(getTagFilters())
+    const activeTimeFilters = Array.from(getTimeFilters())
 
     const maximalPlayers = Math.max(...getPlayers().map(filter => filter.value))
     const maximalTimes = Math.max(...getTimes().map(filter => filter.value))
@@ -145,6 +153,13 @@ export default function (): JSX.Element {
                 .length > 0
           : () => true
       )
+      .filter(
+        activeLabelFilters.length > 0
+          ? game =>
+          activeLabelFilters.filter(value => value === game.label)
+                .length > 0
+          : () => true
+      )
   })
 
   const toggleFilter = <T extends Filters>(setter: Setter<Set<T>>, filter: T) => {
@@ -168,6 +183,7 @@ export default function (): JSX.Element {
       try {
         const games = await fetchGames(source)
         setFullGames(sortGames(games))
+        setLabels(processLabels(games))
         setPlayers(processPlayers(games))
         setTags(processTags(games))
         setTimes(processTimes(games))
@@ -244,6 +260,29 @@ export default function (): JSX.Element {
                           onChange={toggleFilter(setTagFilters, tag().value)}
                         >
                           {tag().label}
+                        </Tag>
+                      )}
+                    </Index>
+                  </Show>
+                </Match>
+              </Switch>
+            </Tags>
+            <Tags>
+              <Switch>
+                <Match when={getLoading()}>
+                  <Tag>
+                    <Loading iconOnly={true} />
+                  </Tag>
+                </Match>
+                <Match when={true}>
+                  <Show when={getLabels().length > 0}>
+                    <Index each={getLabels()}>
+                      {label => (
+                        <Tag
+                          active={getLabelFilters().has(label().value)}
+                          onChange={toggleFilter(setLabelFilters, label().value)}
+                        >
+                          {label().label}
                         </Tag>
                       )}
                     </Index>
