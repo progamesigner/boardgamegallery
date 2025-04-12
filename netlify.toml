@@ -1,7 +1,7 @@
 [build]
   base = "/"
   command = "npm run build"
-  publish = "netlify"
+  publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18.13.0"
+  NODE_VERSION = "22"

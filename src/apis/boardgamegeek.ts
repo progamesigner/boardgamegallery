@@ -1,131 +1,134 @@
-import type { GameObject } from '~/types'
+import { default as lz } from 'lz-string';
+import type { GameObject } from '~/types';
+import { chainImageLoader } from '.';
 
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string'
-
-import { chainImageLoader } from '.'
-
-const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`
+const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`;
 
 function makeURL(ids: string): string {
-  return `https://boardgamegeek.com/xmlapi2/thing?id=${ids}`
+  return `https://boardgamegeek.com/xmlapi2/thing?id=${ids}`;
 }
 
 function saveToCache(things: Record<string, string>): void {
-  const { localStorage } = window
+  const { localStorage } = window;
 
-  Object.entries(things).forEach(([id, thing]) => {
-    localStorage.setItem(makeCacheKey(id), compressToUTF16(thing))
-  })
+  for (const [id, thing] of Object.entries(things)) {
+    localStorage.setItem(makeCacheKey(id), lz.compressToUTF16(thing));
+  }
 }
 
-function loadFromCache(ids: Array<string>): Record<string, string> {
-  const { localStorage } = window
+function loadFromCache(ids: string[]): Record<string, string> {
+  const { localStorage } = window;
 
   if (localStorage) {
-    return ids.reduce((items, id) => {
-      const thing = localStorage.getItem(makeCacheKey(id))
+    return ids.reduce<Record<string, string>>((items, id) => {
+      const thing = localStorage.getItem(makeCacheKey(id));
       if (thing) {
-        return {
-          ...items,
-          [id]: decompressFromUTF16(thing),
-        }
+        items[id] = lz.decompressFromUTF16(thing);
+        return items;
       }
-      return items
-    }, {})
+      return items;
+    }, {});
   }
 
-  return {}
+  return {};
 }
 
-async function getImageURLs(ids: Array<string>): Promise<Record<string, string | null>> {
-  const parser = new DOMParser()
-  const serializer = new XMLSerializer()
+async function getImageURLs(
+  ids: string[],
+): Promise<Record<string, string | null>> {
+  const parser = new DOMParser();
+  const serializer = new XMLSerializer();
 
-  const cachedThings = loadFromCache(ids)
-  const cachedThingIds = Object.keys(cachedThings)
-  const missedThingIds = ids.filter(id => !cachedThingIds.includes(id))
+  const cachedThings = loadFromCache(ids);
+  const cachedThingIds = Object.keys(cachedThings);
+  const missedThingIds = ids.filter((id) => !cachedThingIds.includes(id));
 
   if (missedThingIds.length > 0) {
-    const response = await fetch(makeURL(missedThingIds.join(',')))
+    const response = await fetch(makeURL(missedThingIds.join(',')));
     if (!response.ok) {
-      throw new Error('Failed to fetch thing from boardgamegeek')
+      throw new Error('Failed to fetch thing from boardgamegeek');
     }
 
-    const document = parser.parseFromString(await response.text(), 'text/xml')
-    const error = document.querySelector('parsererror')
+    const document = parser.parseFromString(await response.text(), 'text/xml');
+    const error = document.querySelector('parsererror');
     if (error) {
-      throw new Error(error.textContent ?? 'Parsing error')
+      throw new Error(error.textContent ?? 'Parsing error');
     }
 
     saveToCache(
-      Array.from(document.querySelectorAll('item')).reduce((items, item) => {
-        const id = item.getAttribute('id')
+      Array.from(document.querySelectorAll('item')).reduce<
+        Record<string, string>
+      >((items, item) => {
+        const id = item.getAttribute('id');
         if (id) {
-          return {
-            ...items,
-            [id]: serializer.serializeToString(item),
-          }
+          items[id] = serializer.serializeToString(item);
+          return items;
         }
-        return items
-      }, {})
-    )
+        return items;
+      }, {}),
+    );
   }
 
-  return Object.entries({ ...cachedThings, ...loadFromCache(missedThingIds) }).reduce(
-    (items, [id, thing]) => {
-      const item = parser.parseFromString(thing, 'text/xml')
-      const image = item.querySelector('image')
-      return {
-        ...items,
-        [id]: image ? image.textContent : null,
-      }
-    },
-    {}
-  )
+  return Object.entries({
+    ...cachedThings,
+    ...loadFromCache(missedThingIds),
+  }).reduce<Record<string, string | null>>((items, [id, thing]) => {
+    const item = parser.parseFromString(thing, 'text/xml');
+    const image = item.querySelector('image');
+    items[id] = image ? image.textContent : null;
+    return items;
+  }, {});
 }
 
 async function getImageURL(
   deferredImageURLs: Promise<Record<string, string | null>>,
-  item: GameObject
+  item: GameObject,
 ): Promise<string | null> {
-  const bggId = item.bggId
+  const bggId = item.bggId;
   if (bggId) {
-    return deferredImageURLs.then(images => {
-      return images[bggId.toString()] ?? null
-    }).catch(() => null)
+    return deferredImageURLs
+      .then((images) => {
+        return images[bggId.toString()] ?? null;
+      })
+      .catch(() => null);
   }
-  return null
+  return null;
 }
 
-export function getGameImages(items: Array<GameObject>): Array<GameObject> {
+export function getGameImages(items: GameObject[]): GameObject[] {
   const missedImageIds = items
-    .filter(item => !item.image)
-    .map(item => (item.bggId ? item.bggId.toString() : ''))
-    .filter(bggId => bggId.length > 0)
+    .filter((item) => !item.image)
+    .map((item) => (item.bggId ? item.bggId.toString() : ''))
+    .filter((bggId) => bggId.length > 0);
 
-  const deferredImageURLs = getImageURLs(missedImageIds).then(images => {
+  const deferredImageURLs = getImageURLs(missedImageIds).then((images) => {
     if (images) {
-      return Object.entries(images).reduce((images, [id, url]) => {
-        return {
-          ...images,
-          [id]: url,
-        }
-      }, {})
+      return Object.entries(images).reduce<Record<string, string | null>>(
+        (images, [id, url]) => {
+          images[id] = url;
+          return images;
+        },
+        {},
+      );
     }
-    return []
-  })
+    return {};
+  });
 
   if (missedImageIds.length > 0) {
-    return items.map(item => {
+    return items.map((item) => {
       if (!item.image) {
         return {
           ...item,
-          imageLoader: chainImageLoader(item, getImageURL.bind(null, deferredImageURLs, item), true),
-        }
+          imageLoader: chainImageLoader(
+            item,
+            getImageURL.bind(null, deferredImageURLs, item),
+            true,
+          ),
+        };
       }
-      return item
-    })
+      return item;
+    });
   }
 
-  return items
+  return items;
 }

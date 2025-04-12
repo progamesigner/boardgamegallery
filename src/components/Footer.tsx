@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js'
+import type { JSX } from 'solid-js';
 
 export function Footer(): JSX.Element {
   return (
@@ -7,7 +7,6 @@ export function Footer(): JSX.Element {
       <a class="link link-hover" href="https://progamesigner.com">
         progamesigner
       </a>
-      .
     </p>
-  )
+  );
 }

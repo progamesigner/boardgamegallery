@@ -1,13 +1,12 @@
 .DS_Store
+Thumbs.db
+
 node_modules
 
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-
-.env
-.env.*
-!.env.example
-
 .netlify
-.solid
-netlify
+.output
+.vinxi
+app.config.timestamp_*.js
+dist
+
+.env*

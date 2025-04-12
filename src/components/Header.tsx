@@ -1,76 +1,75 @@
-import type { JSX } from 'solid-js'
-
-import { Portal } from 'solid-js/web'
-import { Meta, Title, useLocation } from 'solid-start'
-
-import { Modal, ModalClose, ModalTrigger } from '~/components/Modal'
-
-import { create } from 'qrcode'
+import { Meta, Title } from '@solidjs/meta';
+import { useLocation } from '@solidjs/router';
+import { create } from 'qrcode';
+import type { JSX } from 'solid-js';
+import { Portal } from 'solid-js/web';
+import { Modal, ModalClose, ModalTrigger } from '~/components/Modal';
 
 function makeSVGPath(data: Uint8Array, size: number, margin = 0): string {
-  let moveBy = 0 // @note: number of masked modules
-  let skipBy = 0 // @note: number of non-masked modules
-  let startRow = false // @note: should start as new row
+  let moveBy = 0; // @note: number of masked modules
+  let skipBy = 0; // @note: number of non-masked modules
+  let startRow = false; // @note: should start as new row
 
-  const operations: Array<string> = []
+  const operations: string[] = [];
   for (let index = 0; index < data.length; ++index) {
-    const x = Math.floor(index % size)
-    const y = Math.floor(index / size)
+    const x = Math.floor(index % size);
+    const y = Math.floor(index / size);
     if (x === 0 && !startRow) {
-      startRow = true
+      startRow = true;
     }
     if (data[index]) {
-      moveBy++
+      moveBy++;
       if (startRow) {
-        operations.push(`M${x + margin} ${0.5 + y + margin}`)
-        startRow = false
+        operations.push(`M${x + margin} ${0.5 + y + margin}`);
+        startRow = false;
       } else {
-        operations.push(`m${skipBy} 0`)
+        operations.push(`m${skipBy} 0`);
       }
       if (x + 1 === size || !data[index + 1]) {
-        operations.push(`h${moveBy}`)
-        moveBy = 0
+        operations.push(`h${moveBy}`);
+        moveBy = 0;
       }
-      skipBy = 0
+      skipBy = 0;
     } else {
-      skipBy++
+      skipBy++;
     }
   }
-  return operations.join('')
+  return operations.join('');
 }
 
 function usePageURL(): string {
-  const { pathname, search } = useLocation()
-
-  if (APP_BASE_URL) {
-    return `${APP_BASE_URL}${pathname}${search}`
-  }
+  const { pathname, search } = useLocation();
 
   if (import.meta.env.SSR) {
-    return `${pathname}${search}`
+    return `${pathname}${search}`;
   }
 
-  return `${window.location.origin}${pathname}${search}`
+  return `${window.location.origin}${pathname}${search}`;
 }
 
 export function Header(): JSX.Element {
-  const url = usePageURL()
-  const qrcode = create(url, {})
-  const path = makeSVGPath(qrcode.modules.data, qrcode.modules.size)
+  const url = usePageURL();
+  const qrcode = create(url, {});
+  const path = makeSVGPath(qrcode.modules.data, qrcode.modules.size);
 
   return (
     <>
       <Title>桌遊清單</Title>
       <Meta name="description" content="桌遊清單展示頁面" />
 
-      <div class="flex py-8 px-2">
+      <div class="flex px-2 py-8">
         <div class="mr-auto">
-          <h1 class="text-5xl font-bold">桌遊清單</h1>
+          <h1 class="font-bold text-5xl">桌遊清單</h1>
         </div>
         <div class="flex gap-2">
           <ModalTrigger id="modal-qecode">
-            <span class="block w-12 cursor-pointer fill-none stroke-current stroke-2">
-              <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <span class="block w-12 cursor-pointer fill-none stroke-2 stroke-current">
+              <svg
+                class="h-full w-full"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+              >
+                <title>QR Code</title>
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -85,10 +84,15 @@ export function Header(): JSX.Element {
             </span>
           </ModalTrigger>
           <a
-            class="w-12 fill-none stroke-current stroke-2"
+            class="w-12 fill-none stroke-2 stroke-current"
             href="https://github.com/progamesigner/boardgamegallery"
           >
-            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <svg
+              class="h-full w-full"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+            >
+              <title>GitHub</title>
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -102,17 +106,18 @@ export function Header(): JSX.Element {
       <Portal>
         <Modal id="modal-qecode">
           <ModalClose id="modal-qecode" />
-          <div class="my-8 mx-auto aspect-square max-w-xs rounded bg-white stroke-black stroke-1 p-4">
+          <div class="mx-auto my-8 aspect-square max-w-xs rounded bg-white stroke-1 stroke-black p-4">
             <svg
               shape-rendering="crispEdges"
               viewBox={`0 0 ${qrcode.modules.size} ${qrcode.modules.size}`}
               xmlns="http://www.w3.org/2000/svg"
             >
+              <title>QR Code</title>
               <path d={path} />
             </svg>
           </div>
         </Modal>
       </Portal>
     </>
-  )
+  );
 }

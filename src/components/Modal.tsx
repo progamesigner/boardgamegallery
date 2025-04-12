@@ -1,7 +1,7 @@
-import type { JSX, ParentProps } from 'solid-js'
+import type { JSX, ParentProps } from 'solid-js';
 
 interface Props extends ParentProps {
-  id: string
+  id: string;
 }
 
 export function Modal(props: Props): JSX.Element {
@@ -12,12 +12,12 @@ export function Modal(props: Props): JSX.Element {
         for={props.id}
         class="modal flex cursor-pointer items-end justify-center bg-black/90 transition-opacity sm:items-center"
       >
-        <label class="relative m-2 max-h-screen w-full cursor-auto overflow-hidden rounded bg-gray-900 sm:max-w-xl">
+        <span class="relative m-2 max-h-screen w-full cursor-auto overflow-hidden rounded bg-gray-900 sm:max-w-xl">
           {props.children}
-        </label>
+        </span>
       </label>
     </>
-  )
+  );
 }
 
 export function ModalClose(props: Props): JSX.Element {
@@ -26,9 +26,14 @@ export function ModalClose(props: Props): JSX.Element {
       {props.children}
       <label
         for={props.id}
-        class="btn-circle btn flex cursor-pointer items-center justify-center rounded-full fill-none stroke-current stroke-2 p-2 text-gray-100 hover:bg-gray-700"
+        class="btn-circle btn flex cursor-pointer items-center justify-center rounded-full fill-none stroke-2 stroke-current p-2 text-gray-100 hover:bg-gray-700"
       >
-        <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <svg
+          class="h-full w-full"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <title>Close</title>
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -38,9 +43,9 @@ export function ModalClose(props: Props): JSX.Element {
         </svg>
       </label>
     </div>
-  )
+  );
 }
 
 export function ModalTrigger(props: Props): JSX.Element {
-  return <label for={props.id}>{props.children}</label>
+  return <label for={props.id}>{props.children}</label>;
 }

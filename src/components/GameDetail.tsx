@@ -1,26 +1,26 @@
-import type { JSX } from 'solid-js'
-
-import type { GameObject } from '~/types'
-
-import { Index, Match, Show, Switch } from 'solid-js'
-
-import { GameImage } from '~/components/GameImage'
-import { Tag, Tags } from '~/components/Tag'
+import type { JSX } from 'solid-js';
+import { Index, Match, Show, Switch } from 'solid-js';
+import { GameImage } from '~/components/GameImage';
+import { Tag, Tags } from '~/components/Tag';
+import type { GameObject } from '~/types';
 
 interface Props {
-  item: GameObject
+  item: GameObject;
 }
 
 interface RangePanelProps {
-  fallback: () => string
-  format: (range: string) => string
-  maximum: number
-  minimum: number
+  fallback: () => string;
+  format: (range: string) => string;
+  maximum: number;
+  minimum: number;
 }
 
 function RangePanel(props: RangePanelProps): JSX.Element {
   return (
-    <Show when={props.maximum > 0 || props.minimum > 0} fallback={<span>{props.fallback()}</span>}>
+    <Show
+      when={props.maximum > 0 || props.minimum > 0}
+      fallback={<span>{props.fallback()}</span>}
+    >
       <Switch>
         <Match when={props.maximum <= 0}>
           <span>{props.format(`${props.minimum}`)}</span>
@@ -36,13 +36,13 @@ function RangePanel(props: RangePanelProps): JSX.Element {
         </Match>
       </Switch>
     </Show>
-  )
+  );
 }
 
 export function GameDetail(props: Props): JSX.Element {
   return (
     <div class="max-h-screen w-full overflow-y-auto px-4 pb-4 text-gray-100 sm:max-h-96">
-      <h2 class="overflow-hidden overflow-ellipsis whitespace-nowrap text-xl font-bold">
+      <h2 class="overflow-hidden overflow-ellipsis whitespace-nowrap font-bold text-xl">
         {props.item.name}
       </h2>
       <h3 class="overflow-hidden overflow-ellipsis whitespace-nowrap text-gray-300">
@@ -56,36 +56,42 @@ export function GameDetail(props: Props): JSX.Element {
         </div>
         <div class="flex grow flex-col">
           <Tags>
-            <Index each={props.item.types}>{type => <Tag>{type()}</Tag>}</Index>
+            <Index each={props.item.types}>
+              {(type) => <Tag>{type()}</Tag>}
+            </Index>
           </Tags>
           <span class="mt-2">玩家人數</span>
-          <div class="text-gray-300 text-sm px-2">
+          <div class="px-2 text-gray-300 text-sm">
             <RangePanel
               fallback={() => '未知'}
-              format={range => `${range} 人`}
+              format={(range) => `${range} 人`}
               minimum={props.item.minimalPlayers}
               maximum={props.item.maximalPlayers}
             />
           </div>
           <span class="mt-2">遊戲時間</span>
-          <div class="text-gray-300 text-sm px-2">
+          <div class="px-2 text-gray-300 text-sm">
             <RangePanel
               fallback={() => '未知'}
-              format={range => `${range} 分鐘`}
+              format={(range) => `${range} 分鐘`}
               minimum={props.item.minimalMinutes}
               maximum={props.item.maximalMinutes}
             />
           </div>
           <Show when={props.item.description}>
-            <p class="mt-2 border-t border-gray-500 pt-2">{props.item.description}</p>
+            <p class="mt-2 border-gray-500 border-t pt-2">
+              {props.item.description}
+            </p>
           </Show>
           <div class="mt-auto">
             <Tags>
-              <Index each={props.item.tags}>{tag => <Tag>{tag()}</Tag>}</Index>
+              <Index each={props.item.tags}>
+                {(tag) => <Tag>{tag()}</Tag>}
+              </Index>
             </Tags>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

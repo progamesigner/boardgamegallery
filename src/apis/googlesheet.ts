@@ -1,10 +1,8 @@
-import type { GameObject } from '~/types'
+import { default as papaparse } from 'papaparse';
+import type { GameObject } from '~/types';
+import { getGameImages } from './boardgamegeek';
 
-import { parse } from 'papaparse'
-
-import { getGameImages } from './boardgamegeek'
-
-const enum Field {
+enum Field {
   ID = 'ID',
   BGGID = 'BGGID',
   NAME = 'NAME',
@@ -28,70 +26,70 @@ const enum Field {
 }
 
 interface SheetGamePayload {
-  [Field.ID]?: string
-  [Field.BGGID]?: number
-  [Field.NAME]?: string
-  [Field.ORIGINAL_NAME]?: string
-  [Field.DESCRIPTION]?: string
-  [Field.LABEL]?: string
-  [Field.IMAGE]?: string
-  [Field.TYPES]?: Array<string>
-  [Field.MINIMAL_PLAYERS]?: number
-  [Field.MAXIMAL_PLAYERS]?: number
-  [Field.MINIMAL_MINUTES]?: number
-  [Field.MAXIMAL_MINUTES]?: number
-  [Field.TAGS]?: Array<string>
-  [Field.ORDER]?: number
-  [Field.IMGUR]?: string
-  [Field.GAMETYPE]?: Array<string>
-  [Field.PLAYER]?: Array<number>
-  [Field.PLAYTIME]?: Array<number>
-  [Field.TAG]?: Array<string>
+  [Field.ID]?: string;
+  [Field.BGGID]?: number;
+  [Field.NAME]?: string;
+  [Field.ORIGINAL_NAME]?: string;
+  [Field.DESCRIPTION]?: string;
+  [Field.LABEL]?: string;
+  [Field.IMAGE]?: string;
+  [Field.TYPES]?: string[];
+  [Field.MINIMAL_PLAYERS]?: number;
+  [Field.MAXIMAL_PLAYERS]?: number;
+  [Field.MINIMAL_MINUTES]?: number;
+  [Field.MAXIMAL_MINUTES]?: number;
+  [Field.TAGS]?: string[];
+  [Field.ORDER]?: number;
+  [Field.IMGUR]?: string;
+  [Field.GAMETYPE]?: string[];
+  [Field.PLAYER]?: number[];
+  [Field.PLAYTIME]?: number[];
+  [Field.TAG]?: string[];
 }
 
 function makeURL(sheetId: string): string {
-  return `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`
+  return `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?output=csv`;
 }
 
 function parseRangeArray(
-  value?: Array<number>,
+  value?: number[],
   minimalValue?: number,
-  maximalValue?: number
-): Array<number> {
+  maximalValue?: number,
+): number[] {
   if (minimalValue || maximalValue) {
-    return [minimalValue ?? 0, maximalValue ?? 0]
+    return [minimalValue ?? 0, maximalValue ?? 0];
   }
 
   if (value) {
     if (value.length === 1) {
-      return [value[0], value[0]]
+      return [value[0], value[0]];
     }
-    return value
+    return value;
   }
 
-  return []
+  return [0, 0];
 }
 
-function splitRangeArray(value: string): Array<number> {
-  return value.split(/[~-]+/).map(v => parseInt(v.trim()))
+function splitRangeArray(value: string): number[] {
+  return value.split(/[~-]+/).map((v) => Number.parseInt(v.trim()));
 }
 
-function splitStringArray(value: string): Array<string> {
+function splitStringArray(value: string): string[] {
   return value
     .split(/[\s,、]+/)
-    .map(v => v.trim())
-    .filter(v => v.length > 0)
+    .map((v) => v.trim())
+    .filter((v) => v.length > 0);
 }
 
-export default async function (sheetId: string): Promise<Array<GameObject>> {
-  const response = await fetch(makeURL(sheetId))
+export default async function (sheetId: string): Promise<GameObject[]> {
+  const response = await fetch(makeURL(sheetId));
   if (!response.ok) {
-    throw new Error('Failed to fetch games')
+    throw new Error('Failed to fetch games');
   }
 
-  const csv = parse<SheetGamePayload>(await response.text(), {
+  const csv = papaparse.parse<SheetGamePayload>(await response.text(), {
     header: true,
-    transformHeader: header => header.toUpperCase(),
+    transformHeader: (header) => header.toUpperCase(),
     transform: (field, column) => {
       switch (column) {
         case Field.BGGID:
@@ -100,7 +98,7 @@ export default async function (sheetId: string): Promise<Array<GameObject>> {
         case Field.MINIMAL_MINUTES:
         case Field.MAXIMAL_MINUTES:
         case Field.ORDER:
-          return parseInt(field)
+          return Number.parseInt(field);
         case Field.ID:
         case Field.NAME:
         case Field.ORIGINAL_NAME:
@@ -108,33 +106,33 @@ export default async function (sheetId: string): Promise<Array<GameObject>> {
         case Field.LABEL:
         case Field.IMAGE:
         case Field.IMGUR:
-          return field.toString().trim()
+          return field.toString().trim();
         case Field.TYPES:
         case Field.TAGS:
         case Field.TAG:
         case Field.GAMETYPE:
-          return splitStringArray(field)
+          return splitStringArray(field);
         case Field.PLAYER:
         case Field.PLAYTIME:
-          return splitRangeArray(field)
+          return splitRangeArray(field);
         default:
-          return field
+          return field;
       }
     },
-  })
+  });
 
   const items = csv.data.map<GameObject>((item, row) => {
     const [minimalPlayers, maximalPlayers] = parseRangeArray(
       item[Field.PLAYER],
       item[Field.MINIMAL_PLAYERS],
-      item[Field.MAXIMAL_PLAYERS]
-    )
+      item[Field.MAXIMAL_PLAYERS],
+    );
 
     const [minimalMinutes, maximalMinutes] = parseRangeArray(
       item[Field.PLAYTIME],
       item[Field.MINIMAL_MINUTES],
-      item[Field.MAXIMAL_MINUTES]
-    )
+      item[Field.MAXIMAL_MINUTES],
+    );
 
     return {
       id: item[Field.ID] ?? row.toString(),
@@ -151,8 +149,8 @@ export default async function (sheetId: string): Promise<Array<GameObject>> {
       maximalMinutes: maximalMinutes,
       tags: [...(item[Field.TAGS] ?? []), ...(item[Field.TAG] ?? [])],
       order: item[Field.ORDER] ?? 0,
-    }
-  })
+    };
+  });
 
-  return getGameImages(items)
+  return getGameImages(items);
 }
