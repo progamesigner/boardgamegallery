@@ -3,6 +3,13 @@ import type { GameObject } from '~/types';
 import { chainImageLoader } from '.';
 
 const makeCacheKey = (id: string) => `BGG:THING:V2A:${id}`;
+const XMLAPI_BATCH_SIZE = 20;
+
+function* chunk<T>(items: T[], size: number): Generator<T[]> {
+  for (let index = 0; index < items.length; index += size) {
+    yield items.slice(index, index + size);
+  }
+}
 
 function makeURL(ids: string): string {
   return `https://boardgamegeek.com/xmlapi2/thing?id=${ids}`;
@@ -43,8 +50,10 @@ async function getImageURLs(
   const cachedThingIds = Object.keys(cachedThings);
   const missedThingIds = ids.filter((id) => !cachedThingIds.includes(id));
 
-  if (missedThingIds.length > 0) {
-    const response = await fetch(makeURL(missedThingIds.join(',')));
+  const batches = Array.from(chunk(missedThingIds, XMLAPI_BATCH_SIZE));
+
+  for (const batchedThingIds of batches) {
+    const response = await fetch(makeURL(batchedThingIds.join(',')));
     if (!response.ok) {
       throw new Error('Failed to fetch thing from boardgamegeek');
     }
@@ -55,10 +64,9 @@ async function getImageURLs(
       throw new Error(error.textContent ?? 'Parsing error');
     }
 
+    const items = Array.from(document.querySelectorAll('item'));
     saveToCache(
-      Array.from(document.querySelectorAll('item')).reduce<
-        Record<string, string>
-      >((items, item) => {
+      items.reduce<Record<string, string>>((items, item) => {
         const id = item.getAttribute('id');
         if (id) {
           items[id] = serializer.serializeToString(item);
