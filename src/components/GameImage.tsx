@@ -62,7 +62,7 @@ export function GameImage(props: Props): JSX.Element {
     <Show
       when={!url.loading}
       fallback={
-        <div class="loading absolute flex h-full w-full items-center justify-center rounded" />
+        <div class="loading -translate-1/2 absolute inset-1/2 rounded" />
       }
     >
       <Show
