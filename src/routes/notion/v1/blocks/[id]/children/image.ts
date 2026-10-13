@@ -5,16 +5,19 @@ export type APIResponse = string | null;
 
 async function handle(blockId: string): Promise<APIResponse> {
   const response = await fetch(
-    `https://api.notion.com/v1/blocks/${blockId}/children`,
+    `https://api.notion.com/v1/blocks/${encodeURIComponent(blockId)}/children`,
     {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28',
+        'Notion-Version': '2025-09-03',
         Authorization: `Bearer ${process.env.SERVER_NOTION_TOKEN}`,
       },
     },
   );
+  if (!response.ok) {
+    throw new Error('Failed to retrieve Notion block children');
+  }
   const items: ListBlockChildrenResponse = await response.json();
 
   return items.results.reduce<string | null>((url, block) => {
@@ -59,7 +62,8 @@ export async function GET({ params }: APIEvent): Promise<Response> {
     const response = await handle(params.id);
     return new Response(JSON.stringify(response));
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify(error));
+    const message =
+      error instanceof Error ? error.message : 'Notion request failed';
+    return Response.json({ error: message }, { status: 502 });
   }
 }

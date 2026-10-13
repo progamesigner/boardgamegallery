@@ -1,9 +1,7 @@
 import type {
   DatabaseObjectResponse,
   PageObjectResponse,
-  PartialDatabaseObjectResponse,
-  PartialPageObjectResponse,
-  QueryDatabaseResponse,
+  QueryDataSourceResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import type { APIEvent } from '@solidjs/start/server';
 import type { GameData, GameObject } from '~/types';
@@ -301,13 +299,9 @@ function formatNotionDate(
 }
 
 function isPageObject(
-  object:
-    | PageObjectResponse
-    | PartialPageObjectResponse
-    | PartialDatabaseObjectResponse
-    | DatabaseObjectResponse,
+  object: QueryDataSourceResponse['results'][number],
 ): object is PageObjectResponse {
-  return 'properties' in object;
+  return object.object === 'page' && 'properties' in object;
 }
 
 function makeGameImage(
@@ -345,21 +339,37 @@ async function handle(
 ): Promise<APIResponse> {
   const games: GameObject[] = [];
 
+  const headers = {
+    'Content-Type': 'application/json',
+    'Notion-Version': '2025-09-03',
+    Authorization: `Bearer ${process.env.SERVER_NOTION_TOKEN}`,
+  };
+  const databaseResponse = await fetch(
+    `https://api.notion.com/v1/databases/${encodeURIComponent(databaseId)}`,
+    { headers },
+  );
+  if (!databaseResponse.ok) {
+    throw new Error('Failed to retrieve Notion database');
+  }
+  const database: DatabaseObjectResponse = await databaseResponse.json();
+  if (database.data_sources.length !== 1) {
+    throw new Error('Expected exactly one data source in the Notion database');
+  }
+  const dataSourceId = database.data_sources[0].id;
   const response = await fetch(
-    `https://api.notion.com/v1/databases/${databaseId}/query`,
+    `https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28',
-        Authorization: `Bearer ${process.env.SERVER_NOTION_TOKEN}`,
-      },
+      headers,
       body: JSON.stringify({
         start_cursor: cursor,
       }),
     },
   );
-  const items: QueryDatabaseResponse = await response.json();
+  if (!response.ok) {
+    throw new Error('Failed to query Notion data source');
+  }
+  const items: QueryDataSourceResponse = await response.json();
 
   items.results.map((item) => {
     if (isPageObject(item)) {
@@ -460,7 +470,8 @@ export async function GET({ params, request }: APIEvent): Promise<Response> {
     );
     return new Response(JSON.stringify(response));
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify(error));
+    const message =
+      error instanceof Error ? error.message : 'Notion request failed';
+    return Response.json({ error: message }, { status: 502 });
   }
 }

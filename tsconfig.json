@@ -13,6 +13,7 @@
       "~/*": ["./src/*"]
     },
     "strict": true,
+    "skipLibCheck": true,
     "target": "ESNext",
     "types": ["vite/client", "@solidjs/start/env"]
   }
