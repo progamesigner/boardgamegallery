@@ -117,12 +117,17 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
 透過環境變數可以調整程式的行為
 
 ### Client 環境變數
+
+這些變數會在 build 時寫進前端程式碼，修改之後需要重新 build 才會生效
  - `VITE_ENABLE_SOURCE_QUERY`: 是否啟用從參數設定資料來源的方式，如果啟用，可以透過 Query String (`?s=...` or `?store=...` or `?source=...`) 的方式設定資料來源，格式為 `<store>:<params>`
 
  - `VITE_DEFAULT_STORE`: 如果沒有給參數時所使用的資料來源，如果沒有設定，有可能會顯示沒有資料來源的錯誤訊息
 
 ### Server 環境變數
- - `SERVER_ENABLE_NOTION_QUERY`: 是否允許使用 Notion Integration (需要部署 Serverless Functions)
+
+這些變數在執行時讀取
+
+ - `SERVER_ENABLE_NOTION_QUERY`: 是否允許使用 Notion Integration
  - `SERVER_NOTION_TOKEN`: 設定 Notion Integration 的 Secret Token
 
 ## 開發
@@ -131,3 +136,32 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
 npm install
 npm run dev
 ```
+
+## 部署到 Cloudflare Workers
+
+網站使用 Nitro 的 `cloudflare_module` preset 建置，SSR 與 `/notion/...` API 跑在 Worker 上，靜態檔案由 Workers static assets 提供。`npm run build` 會依 `wrangler.jsonc` 產生 `.output/server/wrangler.json`，`wrangler deploy` 會自動使用這份設定。
+
+在 Cloudflare 後台用 Workers Builds 連接 GitHub repo：
+
+ - Build command: `npm run build`
+ - Deploy command: `npx wrangler deploy`（預設值）
+ - Build variables（Settings → Build → Variables and secrets）：`VITE_DEFAULT_STORE`、`VITE_ENABLE_SOURCE_QUERY`
+ - Runtime variables（Settings → Variables and Secrets）：
+   - `SERVER_ENABLE_NOTION_QUERY`：設為 Text
+   - `SERVER_NOTION_TOKEN`：設為 Secret
+
+Workers 的 build 變數與 runtime 變數是分開的，`VITE_*` 只設在 runtime 不會有作用。`wrangler.jsonc` 設了 `keep_vars: true`，部署時不會清掉後台設定的 runtime 變數。
+
+Custom domain 在 Worker 的 Settings → Domains & Routes 加入。
+
+Notion API 的成功回應會用 Cache API 快取 5 分鐘，瀏覽器快取 1 分鐘，減少 Notion 呼叫與 Worker CPU 用量。Cache API 只在 custom domain 上有效，`*.workers.dev` 不會快取。
+
+本機預覽（使用 `workerd`）：
+
+```bash
+npm run preview
+```
+
+本機需要的 server 變數可以放在 `.dev.vars`（已在 `.gitignore` 中）。
+
+`netlify.toml` 是舊的 Netlify 設定，只保留到 DNS 切換完成，方便回滾。
