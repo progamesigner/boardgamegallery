@@ -1,5 +1,6 @@
 import type { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
 import type { APIEvent } from '@solidjs/start/server';
+import { withEdgeCache } from '~/lib/edge-cache';
 
 export type APIResponse = string | null;
 
@@ -49,7 +50,7 @@ async function handle(blockId: string): Promise<APIResponse> {
   }, null);
 }
 
-export async function GET({ params }: APIEvent): Promise<Response> {
+export async function GET({ params, request }: APIEvent): Promise<Response> {
   if (!process.env.SERVER_ENABLE_NOTION_QUERY) {
     return new Response(null, { status: 404 });
   }
@@ -58,12 +59,14 @@ export async function GET({ params }: APIEvent): Promise<Response> {
     return new Response(null, { status: 403 });
   }
 
-  try {
-    const response = await handle(params.id);
-    return new Response(JSON.stringify(response));
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Notion request failed';
-    return Response.json({ error: message }, { status: 502 });
-  }
+  return withEdgeCache(request, async () => {
+    try {
+      const response = await handle(params.id);
+      return new Response(JSON.stringify(response));
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Notion request failed';
+      return Response.json({ error: message }, { status: 502 });
+    }
+  });
 }
