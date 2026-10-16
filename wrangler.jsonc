@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "boardgamegallery",
+  "compatibility_date": "2026-10-16",
+  // nodejs_compat lets the Notion routes read vars and secrets via process.env
+  "compatibility_flags": ["nodejs_compat"],
+  // SERVER_ENABLE_NOTION_QUERY and SERVER_NOTION_TOKEN are managed in the
+  // Cloudflare dashboard; keep deploys from wiping them
+  "keep_vars": true,
+  "observability": {
+    "enabled": true
+  }
+}

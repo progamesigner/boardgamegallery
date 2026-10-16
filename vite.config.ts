@@ -7,5 +7,5 @@ export default defineConfig({
   define: {
     PAPA_BROWSER_CONTEXT: 'true',
   },
-  plugins: [solidStart(), nitro(), tailwindcss()],
+  plugins: [solidStart(), nitro({ preset: 'cloudflare_module' }), tailwindcss()],
 });
