@@ -122,7 +122,7 @@ BGG ID 可以在遊戲頁面的網址上找到，例如阿瓦隆的網址為 htt
  - `VITE_DEFAULT_STORE`: 如果沒有給參數時所使用的資料來源，如果沒有設定，有可能會顯示沒有資料來源的錯誤訊息
 
 ### Server 環境變數
- - `SERVER_ENABLE_NOTION_QUERY`: 是否允許使用 Notion Integration (需要部署 Serverless Functions)
+ - `SERVER_ENABLE_NOTION_QUERY`: 是否允許使用 Notion Integration（需要部署 Serverless Functions）。只有 `true` 或 `1` 會啟用；`false`、`0`、空字串、未設定或其他值皆為關閉。忽略大小寫與前後空白。
  - `SERVER_NOTION_TOKEN`: 設定 Notion Integration 的 Secret Token
 
 ## 開發

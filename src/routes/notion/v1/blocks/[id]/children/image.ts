@@ -50,7 +50,11 @@ async function handle(blockId: string): Promise<APIResponse> {
 }
 
 export async function GET({ params }: APIEvent): Promise<Response> {
-  if (!process.env.SERVER_ENABLE_NOTION_QUERY) {
+  if (
+    !['true', '1'].includes(
+      process.env.SERVER_ENABLE_NOTION_QUERY?.trim().toLowerCase() ?? '',
+    )
+  ) {
     return new Response(null, { status: 404 });
   }
 
