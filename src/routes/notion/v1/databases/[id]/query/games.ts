@@ -455,7 +455,11 @@ async function handle(
 export async function GET({ params, request }: APIEvent): Promise<Response> {
   const url = new URL(request.url);
 
-  if (!process.env.SERVER_ENABLE_NOTION_QUERY) {
+  if (
+    !['true', '1'].includes(
+      process.env.SERVER_ENABLE_NOTION_QUERY?.trim().toLowerCase() ?? '',
+    )
+  ) {
     return new Response(null, { status: 404 });
   }
 
