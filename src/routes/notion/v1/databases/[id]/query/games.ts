@@ -50,6 +50,14 @@ export interface APIResponse {
 
 function extractArrayProperty(property: NotionProperty): string[] {
   switch (property.type) {
+    case 'title':
+      return splitStringArray(
+        property.title.map((text) => text.plain_text).join(''),
+      );
+    case 'rich_text':
+      return splitStringArray(
+        property.rich_text.map((text) => text.plain_text).join(''),
+      );
     case 'number':
       return property.number ? [property.number.toString().trim()] : [];
     case 'url':
@@ -201,6 +209,10 @@ function extractNumberProperty(property: NotionProperty): number {
 
 function extractStringProperty(property: NotionProperty): string | undefined {
   switch (property.type) {
+    case 'title':
+      return property.title.map((text) => text.plain_text).join('');
+    case 'rich_text':
+      return property.rich_text.map((text) => text.plain_text).join('');
     case 'number':
       return property.number ? property.number.toString() : undefined;
     case 'url':
