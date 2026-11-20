@@ -4,17 +4,25 @@ import { afterEach, test } from 'node:test';
 import ts from 'typescript';
 
 // Compile the route modules without starting a server or contacting Notion.
-async function loadRoute(path) {
+async function compile(path) {
   const source = await readFile(new URL(path, import.meta.url), 'utf8');
-  const { outputText } = ts.transpileModule(source, {
+  let { outputText } = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.ESNext,
       target: ts.ScriptTarget.ESNext,
     },
   });
-  return import(
-    `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`
-  );
+  // data: URLs cannot resolve the ~/ alias, so inline those modules the same way.
+  for (const [specifier, name] of outputText.matchAll(/'~\/([^']+)'/g)) {
+    outputText = outputText.replace(
+      specifier,
+      `'${await compile(`../src/${name}.ts`)}'`,
+    );
+  }
+  return `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`;
+}
+async function loadRoute(path) {
+  return import(await compile(path));
 }
 
 const originalEnv = { ...process.env };

@@ -10,3 +10,6 @@ app.config.timestamp_*.js
 dist
 
 .env*
+
+.wrangler
+.dev.vars*
